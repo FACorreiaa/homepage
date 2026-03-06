@@ -6,6 +6,7 @@ func routes(_ app: Application) throws {
     try app.register(collection: CurriculumController())
     try app.register(collection: StackController())
     try app.register(collection: BlogController())
+    try app.register(collection: PlayController())
     try app.register(collection: ProposalController())
 
     app.get("book-call") { req -> Response in
