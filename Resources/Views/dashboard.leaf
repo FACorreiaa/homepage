@@ -1,0 +1,89 @@
+#extend("base"):
+  #export("body"):
+    <div class="min-h-screen bg-background text-foreground py-16 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-6xl mx-auto space-y-12 animate-fade-in-up">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border pb-8">
+          <div>
+            <h1 class="text-4xl font-bold mb-2">Welcome, <span class="text-primary">#(user.name)</span></h1>
+            <div class="flex items-center gap-3 mt-4 text-sm">
+                <span class="text-muted-foreground">Clearance Level:</span>
+                <span class="bg-primary/10 border border-primary/20 text-primary px-3 py-1 rounded-full uppercase tracking-wider font-bold shadow-inner shadow-primary/5">#(user.projectStatus)</span>
+            </div>
+          </div>
+          <form action="/admin/logout" method="POST">
+            <button type="submit" class="btn bg-muted border border-border text-foreground hover:bg-muted/80 rounded-xl px-6 py-2.5 font-bold transition-all shadow-sm">Sign Out</button>
+          </form>
+        </div>
+
+        <!-- Leads Database Section -->
+        <div>
+          <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+            <div class="p-2 bg-primary/10 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            Incoming Proposals CRM
+          </h2>
+          
+          <div class="grid gap-6">
+            #if(count(leads) == 0):
+              <div class="glass-card p-16 text-center rounded-3xl border border-border border-dashed">
+                <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">No active leads</h3>
+                <p class="text-muted-foreground max-w-sm mx-auto">When clients submit a form on the Proposal page, they will securely populate into this database.</p>
+              </div>
+            #else:
+              #for(lead in leads):
+              <div class="glass-card rounded-2xl border border-border relative overflow-hidden group hover:border-primary/30 transition-colors shadow-lg shadow-black/5">
+                <!-- Highlight Strip -->
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-primary/40 group-hover:bg-primary transition-colors"></div>
+                
+                <div class="p-6 md:p-8">
+                    <!-- Top section -->
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+                        <div>
+                            <h3 class="font-bold text-2xl mb-1 text-foreground group-hover:text-primary transition-colors">#(lead.name)</h3>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-muted px-2.5 py-1 rounded text-xs font-bold tracking-wide uppercase text-muted-foreground border border-border/50">#(lead.projectType)</span>
+                            </div>
+                        </div>
+                        <div class="md:text-right bg-muted/30 px-4 py-2 rounded-xl border border-border/50">
+                            <p class="text-xs text-muted-foreground uppercase tracking-wider font-bold mb-1">Declared Budget</p>
+                            <p class="font-mono text-lg font-bold text-primary">#(lead.budget ?? "N/A")</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Meta Grid -->
+                    <div class="grid md:grid-cols-3 gap-4 mb-6 text-sm">
+                        <div class="bg-background/80 p-4 rounded-xl border border-border/50 shadow-sm">
+                            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1.5 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> Contact Email</span>
+                            <a href="mailto:#(lead.email)" class="text-primary hover:underline font-medium break-all">#(lead.email)</a>
+                        </div>
+                        <div class="bg-background/80 p-4 rounded-xl border border-border/50 shadow-sm">
+                            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1.5 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg> Company / Org</span>
+                            <span class="font-medium text-foreground">#(lead.company ?? "Unspecified")</span>
+                        </div>
+                        <div class="bg-background/80 p-4 rounded-xl border border-border/50 shadow-sm">
+                            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1.5 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Target Timeline</span>
+                            <span class="font-medium text-foreground">#(lead.timeline ?? "Flexible")</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Raw Details -->
+                    <div class="mt-4 pt-6 border-t border-border">
+                        <span class="text-xs text-muted-foreground uppercase tracking-widest font-bold block mb-3 pl-1">Project Deep Dive</span>
+                        <div class="p-5 bg-muted/20 rounded-xl border border-border/40 font-mono text-sm leading-relaxed text-foreground/80 whitespace-pre-wrap shadow-inner">#(lead.details)</div>
+                    </div>
+                </div>
+              </div>
+              #endfor
+            #endif
+          </div>
+        </div>
+      </div>
+    </div>
+  #endexport
+#endextend

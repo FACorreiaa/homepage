@@ -1,3 +1,4 @@
+import Fluent
 import Vapor
 
 struct ProposalController: RouteCollection {
@@ -69,9 +70,24 @@ struct ProposalController: RouteCollection {
             return try await req.view.render("proposal", context)
         }
 
-        // TODO: In a real app, save the proposal to a database or send an email notification here
+        // Save the valid proposal to the SQLite database
+        let lead = ProposalLead(
+            name: input.name,
+            email: input.email,
+            company: input.company,
+            projectType: input.projectType,
+            budget: input.budget,
+            timeline: input.timeline,
+            details: input.details
+        )
+        try await lead.save(on: req.db)
+
+        // Phase 2: Alert Admin dynamically via Discord
+        NotificationService.sendLeadNotification(app: req.application, lead: lead)
+
         req.logger.info(
-            "New proposal request from \(input.name) (\(input.email)) for \(input.projectType)")
+            "New proposal request from \(input.name) (\(input.email)) for \(input.projectType) saved to database"
+        )
 
         return try await renderSuccess(req: req)
     }

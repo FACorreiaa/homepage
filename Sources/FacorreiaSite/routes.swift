@@ -8,6 +8,7 @@ func routes(_ app: Application) throws {
     try app.register(collection: BlogController())
     try app.register(collection: PlayController())
     try app.register(collection: ProposalController())
+    try app.register(collection: AdminController())
 
     app.get("book-call") { req -> Response in
         let defaultCalendlyURL = "https://calendly.com/fernandocorreia316"

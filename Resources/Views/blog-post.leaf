@@ -35,51 +35,7 @@
 
           <!-- Article Content -->
           <div class="container mx-auto max-w-3xl px-4 prose prose-invert prose-lg prose-primary animate-fade-in-up delay-[400ms]">
-            <!-- In a real CMS, this would be injected raw HTML/Markdown from the Post model. We'll hardcode the first one for the demo. -->
-            
-            <p class="lead text-xl text-foreground font-medium mb-8">
-              Coming from a heavy backend background in Go, jumping into the Apple ecosystem felt like landing on an alien planet. Here’s how I unlearned old habits to master modern SwiftUI and build truly premium mobile experiences.
-            </p>
-
-            <h2 class="text-2xl font-bold mt-12 mb-6 text-foreground">The Paradigm Shift</h2>
-            <p class="mb-6 text-muted-foreground leading-relaxed">
-              When you spend years writing highly concurrent backend systems in Go, orchestrating REST APIs, and tuning database queries, you get used to an imperative, highly explicit way of writing code. You tell the computer exactly <em>how</em> to do something, step by step.
-            </p>
-            <p class="mb-6 text-muted-foreground leading-relaxed">
-              Opening Xcode for the first time and looking at SwiftUI was a shock to the system. Suddenly, I wasn't telling the computer <em>how</em> to draw a screen; I was telling it <em>what</em> the screen should look like based on a given state. The <strong>Declarative UI</strong> paradigm required a complete rewiring of my mental models.
-            </p>
-
-            <div class="my-10 p-6 bg-primary/5 border border-primary/20 rounded-2xl border-l-4 border-l-primary">
-              <p class="italic text-foreground m-0 text-lg">
-                "The biggest hurdle wasn't learning the Swift syntax—it was learning to let go of control to the rendering loop."
-              </p>
-            </div>
-
-            <h2 class="text-2xl font-bold mt-12 mb-6 text-foreground">Discovering the Magic of State</h2>
-            <p class="mb-6 text-muted-foreground leading-relaxed">
-              In Go, state is often meant to be minimized or carefully locked behind mutexes. In SwiftUI, state is the holy grail. Wrapping my head around <code>@State</code>, <code>@Binding</code>, and later <code>@Observable</code> was the turning point.
-            </p>
-            <p class="mb-6 text-muted-foreground leading-relaxed">
-              I started building small prototypes: a simple budget tracker, a habit building app. Every time I tried to manually update a view, things broke. Every time I trusted the data-binding, things worked beautifully. It felt like magic when a simple change to a variable automatically triggered a slick, Spring-animated transition across the entire screen.
-            </p>
-
-            <h2 class="text-2xl font-bold mt-12 mb-6 text-foreground">The Pursuit of "Premium"</h2>
-            <p class="mb-6 text-muted-foreground leading-relaxed">
-              Apple users have incredibly high standards. An app can't just <em>work</em>; it has to <em>feel</em> right. This meant diving deep into the nuances of UI/UX that I had previously glossed over:
-            </p>
-            <ul class="list-disc pl-6 mb-8 space-y-3 text-muted-foreground marker:text-primary">
-              <li><strong>Micro-animations:</strong> Learning that a linear animation feels cheap, while a physics-based spring animation feels organic and native.</li>
-              <li><strong>Haptics:</strong> Tying <code>UIImpactFeedbackGenerator</code> to button presses completely changes the perceived quality of an interaction.</li>
-              <li><strong>Glassmorphism:</strong> Utilizing <code>.ultraThinMaterial</code> to create depth and hierarchy, rather than just relying on flat drop shadows.</li>
-            </ul>
-
-            <h2 class="text-2xl font-bold mt-12 mb-6 text-foreground">Combining the Best of Both Worlds</h2>
-            <p class="mb-6 text-muted-foreground leading-relaxed">
-              Today, my capability to ship full-stack products is a superpower. I can architect a robust, infinitely scalable gRPC backend in Go, and immediately hook it up to a gorgeous, fluid iOS application written in Swift. 
-            </p>
-            <p class="mb-8 text-muted-foreground leading-relaxed">
-              The journey from <code>fmt.Println("Server started")</code> to <code>import SwiftUI</code> has been the most rewarding pivot of my career. And honestly? I'm just getting started.
-            </p>
+            #unsafeRaw(post.htmlContent)
 
             <!-- Back navigation -->
             <div class="mt-16 pt-8 border-t border-border flex items-center justify-between">

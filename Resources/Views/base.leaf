@@ -50,14 +50,21 @@
     </script>
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="FC Software Studio — Building polished web apps, high-performance iOS apps, and custom product engineering services. Founded by Fernando Correia, software engineer with 7+ years of expertise in Go, React, and distributed systems.">
+    <meta name="description" content="#if(seoDescription != nil):#(seoDescription)#else:FC Software Studio — Building polished web apps, high-performance iOS apps, and custom product engineering services. Founded by Fernando Correia.#endif">
     <meta name="author" content="Fernando Correia">
-    <meta name="keywords" content="Software Studio, Web Apps, iOS Apps, Go Developer, React, TypeScript, Product Engineering, Custom Software, Fernando Correia">
+    <meta name="keywords" content="#if(seoKeywords != nil):#(seoKeywords)#else:Software Studio, Web Apps, iOS Apps, Go Developer, React, TypeScript, Product Engineering, Custom Software, Fernando Correia#endif">
 
     <!-- Open Graph -->
     <meta property="og:title" content="#(title)">
-    <meta property="og:description" content="FC Software Studio — Polished web and iOS apps, built with engineering excellence.">
-    <meta property="og:type" content="website">
+    <meta property="og:description" content="#if(seoDescription != nil):#(seoDescription)#else:FC Software Studio — Polished web and iOS apps, built with engineering excellence.#endif">
+    <meta property="og:type" content="#if(ogType != nil):#(ogType)#else:website#endif">
+    <meta property="og:image" content="#if(ogImage != nil):#(ogImage)#else:https://facorreia.com/images/default-og.png#endif">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="#(title)">
+    <meta name="twitter:description" content="#if(seoDescription != nil):#(seoDescription)#else:FC Software Studio — Polished web and iOS apps, built with engineering excellence.#endif">
+    <meta name="twitter:image" content="#if(ogImage != nil):#(ogImage)#else:https://facorreia.com/images/default-og.png#endif">
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/static/manifest.json">

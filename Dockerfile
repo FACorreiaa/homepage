@@ -88,6 +88,10 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
 # Create a vapor user and group with /app as its home directory
 RUN useradd --user-group --create-home --system --skel /dev/null --home-dir /app vapor
 
+# Ensure the SQLite storage directory exists and is writable by the vapor user.
+RUN mkdir -p /var/lib/facorreia-site \
+    && chown -R vapor:vapor /var/lib/facorreia-site
+
 # Switch to the new home directory
 WORKDIR /app
 
