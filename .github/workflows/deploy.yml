@@ -12,31 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Swift
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "6.1"
-
-      - name: Install Tailwind CSS CLI
-        run: |
-          curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
-          chmod +x tailwindcss-linux-x64
-          mv tailwindcss-linux-x64 tailwindcss
-
-      - name: Download Basecoat CSS
-        run: |
-          curl -sL -o Public/css/basecoat.min.css https://cdn.jsdelivr.net/npm/basecoat-css@latest/dist/basecoat.min.css
-
-      - name: Build CSS
-        run: |
-          ./tailwindcss -i Public/css/input.css -o Public/css/output.css --minify
-
-      - name: Build Swift binary
-        run: |
-          swift build -c release \
-            --static-swift-stdlib \
-            -Xlinker -ljemalloc
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
