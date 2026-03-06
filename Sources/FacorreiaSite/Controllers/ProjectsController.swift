@@ -20,6 +20,20 @@ struct ProjectsController: RouteCollection {
             ],
             projects: [
                 ProjectItem(
+                    title: "FanAPI",
+                    description:
+                        "A RESTful API for Fandemic built with Go, featuring JWT-based authentication, real-time group chat via WebSockets, profile and contacts management, and interactive OpenAPI documentation with Scalar.",
+                    tags: ["Go", "REST API", "WebSocket", "JWT", "PostgreSQL"],
+                    category: "Backend API",
+                    githubLink: "Private",
+                    liveLink: "",
+                    hasLiveLink: false,
+                    featured: true,
+                    icon: "⚙️",
+                    iconUrl:
+                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
+                ),
+                ProjectItem(
                     title: "iOS E-Commerce App",
                     description:
                         "A native iOS e-commerce application built with Swift and SwiftUI, featuring Apple Pay integration and smooth animations.",
