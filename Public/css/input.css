@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "./basecoat.min.css";
+@import "./theme.css";
+@import "./custom.css";

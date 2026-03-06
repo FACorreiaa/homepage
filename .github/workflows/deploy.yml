@@ -1,0 +1,68 @@
+name: Deploy to Production
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch: # Manual trigger
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install Swift
+              uses: swift-actions/setup-swift@v2
+              with:
+                  swift-version: "6.1"
+
+            - name: Install Tailwind CSS CLI
+              run: |
+                  curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
+                  chmod +x tailwindcss-linux-x64
+                  mv tailwindcss-linux-x64 tailwindcss
+
+            - name: Download Basecoat CSS
+              run: |
+                  curl -sL -o Public/css/basecoat.min.css https://cdn.jsdelivr.net/npm/basecoat-css@latest/dist/basecoat.min.css
+
+            - name: Build CSS
+              run: |
+                  ./tailwindcss -i Public/css/input.css -o Public/css/output.css --minify
+
+            - name: Build Swift binary
+              run: |
+                  swift build -c release \
+                    --static-swift-stdlib \
+                    -Xlinker -ljemalloc
+
+            - name: Prepare artifacts
+              run: |
+                  mkdir -p staging
+                  cp "$(swift build -c release --show-bin-path)/FacorreiaSite" staging/
+                  cp -r Public staging/Public
+                  cp -r Resources staging/Resources
+
+            # ---------------------------------------------------------------
+            # TODO: Add SSH deploy steps to Hetzner (similar to fac-artifact)
+            # Example:
+            #   - name: Setup SSH
+            #     run: |
+            #       mkdir -p ~/.ssh
+            #       echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+            #       chmod 600 ~/.ssh/id_ed25519
+            #       ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+            #
+            #   - name: Deploy to server
+            #     env:
+            #       SERVER_USER: ${{ secrets.SERVER_USER }}
+            #       SERVER_HOST: ${{ secrets.SERVER_HOST }}
+            #       DEPLOY_PATH: /var/www/facorreia-site
+            #     run: |
+            #       ssh ${SERVER_USER}@${SERVER_HOST} "mkdir -p ${DEPLOY_PATH}"
+            #       scp staging/FacorreiaSite ${SERVER_USER}@${SERVER_HOST}:${DEPLOY_PATH}/
+            #       rsync -avz --delete staging/Public/ ${SERVER_USER}@${SERVER_HOST}:${DEPLOY_PATH}/Public/
+            #       rsync -avz --delete staging/Resources/ ${SERVER_USER}@${SERVER_HOST}:${DEPLOY_PATH}/Resources/
+            #       ssh ${SERVER_USER}@${SERVER_HOST} "systemctl restart facorreia-site"
+            # ---------------------------------------------------------------

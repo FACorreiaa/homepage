@@ -23,6 +23,12 @@ RUN swift package resolve \
 # Copy entire repo into container
 COPY . .
 
+# Download Tailwind CSS CLI (Linux x64) and build minified CSS
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
+    && chmod +x tailwindcss-linux-x64 \
+    && ./tailwindcss-linux-x64 -i Public/css/input.css -o Public/css/output.css --minify \
+    && rm tailwindcss-linux-x64
+
 RUN mkdir /staging
 
 # Build the application, with optimizations, with static linking, and using jemalloc
