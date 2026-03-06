@@ -1,0 +1,18 @@
+# Local Development Caddyfile
+#
+# Usage:
+# 1. Start your Vapor app on port 8080 (e.g., `swift run` or `make dev`)
+# 2. In another terminal, run: `caddy run` (or `caddy start` for background)
+# 3. Visit https://localhost or http://localhost
+#
+# Caddy will automatically generate a local self-signed certificate for HTTPS.
+# If your browser complains about the certificate, that is normal for localhost.
+# You can bypass the warning or run `caddy trust` to install the local root cert.
+
+localhost {
+    # Compress responses
+    encode zstd gzip
+
+    # Reverse proxy to the Vapor app running locally
+    reverse_proxy localhost:8080
+}

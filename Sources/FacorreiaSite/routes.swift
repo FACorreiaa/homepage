@@ -1,14 +1,36 @@
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.get { req async throws in
-        try await req.view.render(
-            "index",
-            [
-                "title": "FC Software Studio",
-                "activePage": "home",
-            ])
+    try app.register(collection: ProjectsController())
+    try app.register(collection: AboutController())
+    try app.register(collection: CurriculumController())
+    try app.register(collection: StackController())
+    try app.register(collection: BlogController())
+    try app.register(collection: ProposalController())
+
+    app.get("book-call") { req -> Response in
+        let defaultCalendlyURL = "https://calendly.com/fernandocorreia316"
+        let configuredCalendlyURL =
+            Environment.get("CALENDLY_URL")?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let calendlyURL = normalizeCalendlyURL(configuredCalendlyURL, fallback: defaultCalendlyURL)
+
+        return req.redirect(to: calendlyURL, redirectType: .temporary)
+    }
+}
+
+private func normalizeCalendlyURL(_ rawValue: String?, fallback: String) -> String {
+    guard let rawValue, !rawValue.isEmpty else {
+        return fallback
     }
 
-    try app.register(collection: AboutController())
+    if rawValue.hasPrefix("http://") || rawValue.hasPrefix("https://") {
+        return rawValue
+    }
+
+    if rawValue.hasPrefix("calendly.com/") {
+        return "https://" + rawValue
+    }
+
+    return "https://calendly.com/"
+        + rawValue.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 }

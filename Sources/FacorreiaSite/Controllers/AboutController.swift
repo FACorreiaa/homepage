@@ -1,7 +1,7 @@
 import Vapor
 
 struct AboutController: RouteCollection {
-    func boot(routes: RoutesBuilder) throws {
+    func boot(routes: any RoutesBuilder) throws {
         routes.get("about", use: index)
     }
 

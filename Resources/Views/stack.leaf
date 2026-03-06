@@ -1,0 +1,57 @@
+#extend("base"):
+  #export("body"):
+    <div class="min-h-screen flex flex-col bg-background text-foreground">
+      <main class="flex-1">
+        <!-- Hero Section -->
+        <section class="hero-gradient py-20">
+          <div class="container mx-auto max-w-4xl px-4 text-center">
+            <span class="category-label block mb-4 animate-fade-in">Technologies</span>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 text-foreground animate-fade-in-up delay-100">
+              Tech <span class="text-gradient">Stack</span>
+            </h1>
+            <p class="text-xl text-muted-foreground animate-fade-in-up delay-200">
+              Technologies and tools I use to build robust, scalable applications.
+            </p>
+          </div>
+        </section>
+
+        #for(section in sections):
+          <section class="py-16 px-4 #(section.backgroundClass)" data-reveal>
+            <div class="container mx-auto max-w-5xl">
+              <h2 class="text-2xl font-bold mb-8 text-foreground flex items-center gap-3">
+                <span class="w-10 h-10 rounded-lg #(section.iconBgClass) flex items-center justify-center text-xl">#(section.icon)</span>
+                <span>#(section.title)</span>
+              </h2>
+              <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" data-reveal-stagger>
+                #for(tech in section.technologies):
+                  <div class="tech-card glass-card flex flex-col items-center justify-center text-center p-6 hover-lift relative overflow-hidden group">
+                    <div class="w-12 h-12 mb-3 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1">
+                      <img src="#(tech.iconUrl)" alt="#(tech.name) icon" class="w-full h-full object-contain filter dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.15)] drop-shadow-[0_0_8px_rgba(0,0,0,0.05)]" loading="lazy">
+                    </div>
+                    <span class="font-semibold text-foreground block transition-colors duration-300 group-hover:text-primary">#(tech.name)</span>
+                    <span class="text-xs text-primary mt-1 block tracking-wider font-mono opacity-80" aria-label="Proficiency: #(tech.proficiency)">#(tech.proficiency)</span>
+                    <div class="absolute inset-0 border-2 border-transparent group-hover:border-primary/20 rounded-xl transition-colors duration-300 pointer-events-none"></div>
+                  </div>
+                #endfor
+              </div>
+            </div>
+          </section>
+        #endfor
+
+        <!-- CTA -->
+        <section class="py-16 px-4 bg-muted" data-reveal="scale">
+          <div class="container mx-auto max-w-4xl text-center">
+            <div class="glass-card p-10 rounded-2xl border-gradient">
+              <h2 class="text-2xl font-bold mb-4 text-foreground">Always Learning</h2>
+              <p class="text-muted-foreground mb-6">
+                Technology evolves quickly. I'm constantly exploring new tools and patterns
+                to deliver better solutions.
+              </p>
+              <a href="/projects" class="btn btn-primary btn-glow">See My Work</a>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  #endexport
+#endextend

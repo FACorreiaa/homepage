@@ -7,7 +7,11 @@ FROM swift:6.1-noble AS build
 RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     && apt-get -q update \
     && apt-get -q dist-upgrade -y \
-    && apt-get install -y libjemalloc-dev
+    && apt-get install -y \
+      libjemalloc-dev \
+      curl \
+      ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set up a build area
 WORKDIR /build
@@ -23,11 +27,18 @@ RUN swift package resolve \
 # Copy entire repo into container
 COPY . .
 
-# Download Tailwind CSS CLI (Linux x64) and build minified CSS
-RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 \
-    && chmod +x tailwindcss-linux-x64 \
-    && ./tailwindcss-linux-x64 -i Public/css/input.css -o Public/css/output.css --minify \
-    && rm tailwindcss-linux-x64
+# Download Tailwind CSS CLI and build minified CSS
+ARG TARGETARCH
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+      amd64) tailwind_arch="x64" ;; \
+      arm64) tailwind_arch="arm64" ;; \
+      *) echo "Unsupported TARGETARCH: ${TARGETARCH}"; exit 1 ;; \
+    esac; \
+    curl -fsSLo tailwindcss "https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-${tailwind_arch}"; \
+    chmod +x tailwindcss; \
+    ./tailwindcss -i Public/css/input.css -o Public/css/output.css --minify; \
+    rm tailwindcss
 
 RUN mkdir /staging
 
