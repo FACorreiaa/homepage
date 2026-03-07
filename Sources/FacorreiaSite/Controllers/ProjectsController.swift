@@ -34,6 +34,20 @@ struct ProjectsController: RouteCollection {
                         "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
                 ),
                 ProjectItem(
+                    title: "FanAPI",
+                    description:
+                        "Pamozi provides dedicated used glasses for communities in need and that cannot afford them. To help with logistics, a Platform was built so they can manage data, users and stock management.",
+                    tags: ["Go", "Server Side Rendering", "Templ", "HTMX", "PostgreSQL"],
+                    category: "Backend API",
+                    githubLink: "https://github.com/FACorreiaa/glasses-management-platform",
+                    liveLink: "https://pamozi.de",
+                    hasLiveLink: true ,
+                    featured: true,
+                    icon: "⚙️",
+                    iconUrl:
+                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
+                ),
+                ProjectItem(
                     title: "iOS E-Commerce App",
                     description:
                         "A native iOS e-commerce application built with Swift and SwiftUI, featuring Apple Pay integration and smooth animations.",
