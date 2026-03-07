@@ -27,26 +27,45 @@
         }
       }
 
+      function syncMobileMenuState(isOpen) {
+        const drawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('mobile-overlay');
+        const menuButton = document.getElementById('mobile-menu-button');
+        if (drawer && overlay) {
+          drawer.classList.toggle('open', isOpen);
+          drawer.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+          overlay.classList.toggle('open', isOpen);
+          if (menuButton) {
+            menuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            menuButton.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+          }
+          document.body.style.overflow = isOpen ? 'hidden' : '';
+        }
+      }
+
       // Mobile menu toggle
       function toggleMobileMenu() {
         const drawer = document.getElementById('mobile-drawer');
-        const overlay = document.getElementById('mobile-overlay');
-        if (drawer && overlay) {
-          drawer.classList.toggle('open');
-          overlay.classList.toggle('open');
-          document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+        if (drawer) {
+          syncMobileMenuState(!drawer.classList.contains('open'));
         }
       }
 
       function closeMobileMenu() {
-        const drawer = document.getElementById('mobile-drawer');
-        const overlay = document.getElementById('mobile-overlay');
-        if (drawer && overlay) {
-          drawer.classList.remove('open');
-          overlay.classList.remove('open');
-          document.body.style.overflow = '';
-        }
+        syncMobileMenuState(false);
       }
+
+      window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          closeMobileMenu();
+        }
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 820) {
+          closeMobileMenu();
+        }
+      });
     </script>
 
     <!-- SEO Meta Tags -->
