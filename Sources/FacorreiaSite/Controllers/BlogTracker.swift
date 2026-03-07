@@ -10,10 +10,11 @@ actor BlogTracker {
     }
 
     private var stats: Stats
-    private let fileURL = URL(fileURLWithPath: DirectoryConfiguration.detect().workingDirectory)
-        .appendingPathComponent("blog_stats.json")
+    private let fileURL: URL
 
     private init() {
+        self.fileURL = BlogTracker.resolveStatsFileURL()
+
         if let data = try? Data(contentsOf: fileURL),
             let decoded = try? JSONDecoder().decode(Stats.self, from: data)
         {
@@ -78,9 +79,26 @@ actor BlogTracker {
     }
 
     private func save() {
+        let directoryURL = fileURL.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+
         if let data = try? JSONEncoder().encode(stats) {
             try? data.write(to: fileURL)
         }
+    }
+
+    private static func resolveStatsFileURL() -> URL {
+        if let explicitPath = Environment.get("BLOG_STATS_PATH"), !explicitPath.isEmpty {
+            return URL(fileURLWithPath: explicitPath)
+        }
+
+        if let databasePath = Environment.get("DATABASE_PATH"), !databasePath.isEmpty {
+            let databaseURL = URL(fileURLWithPath: databasePath)
+            return databaseURL.deletingLastPathComponent().appendingPathComponent("blog_stats.json")
+        }
+
+        return URL(fileURLWithPath: DirectoryConfiguration.detect().workingDirectory)
+            .appendingPathComponent("blog_stats.json")
     }
 
     private func countryCodeToEmoji(_ countryCode: String) -> String {

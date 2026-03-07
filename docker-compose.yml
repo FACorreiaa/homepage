@@ -17,6 +17,7 @@ x-shared_environment: &shared_environment
   LOG_LEVEL: ${LOG_LEVEL:-debug}
   CALENDLY_URL: ${CALENDLY_URL:-https://calendly.com/fernandocorreia316}
   DATABASE_PATH: "/var/lib/facorreia-site/studio.sqlite"
+  BLOG_STATS_PATH: "/var/lib/facorreia-site/blog_stats.json"
   DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL:-}
 
 services:
