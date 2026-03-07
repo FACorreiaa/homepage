@@ -1,45 +1,38 @@
-name: Deploy to Production
+name: Deploy to Hetzner
 
 on:
   push:
     branches: [main]
+    paths:
+      - "facorreia-site/**"
   workflow_dispatch: # Manual trigger
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            set -e
+            cd /var/www/homepage/facorreia-site
+            git -C /var/www/homepage pull origin main
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+            # Rebuild and restart
+            docker compose up -d --build --remove-orphans
 
-      - name: Deploy to Server via Rsync
-        env:
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          DEPLOY_PATH: /var/www/facorreia-site
-        run: |
-          # Ensure the deployment directory exists
-          ssh ${SERVER_USER}@${SERVER_HOST} "mkdir -p ${DEPLOY_PATH}"
+            # Prune old dangling images to reclaim disk space
+            docker image prune -f
 
-          # Rsync the critical files over to the server
-          rsync -avz --delete \
-            --exclude '.git' \
-            --exclude '.github' \
-            --exclude '.build' \
-            --exclude '.swiftpm' \
-            ./ ${SERVER_USER}@${SERVER_HOST}:${DEPLOY_PATH}/
-
-      - name: Build and Restart Docker Containers
-        env:
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          DEPLOY_PATH: /var/www/facorreia-site
-        run: |
-          ssh ${SERVER_USER}@${SERVER_HOST} "cd ${DEPLOY_PATH} && docker compose up -d --build"
+            # Verify the container is healthy
+            sleep 5
+            if ! docker compose ps --format json | grep -q '"running"'; then
+              echo "ERROR: Container is not running!"
+              docker compose logs --tail 30
+              exit 1
+            fi
+            echo "Deployment successful!"
