@@ -3,8 +3,6 @@ name: Deploy to Hetzner
 on:
   push:
     branches: [main]
-    paths:
-      - "facorreia-site/**"
   workflow_dispatch: # Manual trigger
 
 jobs:
@@ -19,8 +17,8 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             set -e
-            cd /var/www/homepage/facorreia-site
-            git -C /var/www/homepage pull origin main
+            cd /var/www/homepage
+            git pull origin main
 
             # Rebuild and restart
             docker compose up -d --build --remove-orphans
