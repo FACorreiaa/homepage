@@ -19,6 +19,7 @@ public func configure(_ app: Application) async throws {
     app.middleware.use(app.sessions.middleware)
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.views.use(.leaf)
+    app.leaf.tags["unsafeRaw"] = UnsafeRawTag()
 
     // register routes
     try routes(app)
