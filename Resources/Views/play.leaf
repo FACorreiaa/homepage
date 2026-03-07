@@ -22,26 +22,26 @@
             </div>
 
             <!-- Canvas Area -->
-            <div class="relative border-2 border-border/50 rounded-xl overflow-hidden bg-background/50">
-                <canvas id="gameCanvas" width="400" height="400" class="block bg-card"></canvas>
+            <div class="relative w-full mx-auto border-2 border-border/50 rounded-xl overflow-hidden bg-background/50" style="max-width: 400px;">
+                <canvas id="gameCanvas" width="400" height="400" class="block w-full h-auto bg-card"></canvas>
                 
                 <!-- Overlay (Start / Game Over) -->
                 <div id="gameOverlay" class="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10">
                     <h2 id="overlayTitle" class="text-3xl font-bold mb-2">Ready?</h2>
                     <p id="overlayText" class="text-muted-foreground mb-6">Press Start to play.</p>
-                    <button id="startBtn" class="btn btn-primary btn-glow px-8 py-3 text-lg">Start Game</button>
+                    <button id="startBtn" type="button" class="btn btn-primary btn-glow px-8 py-3 text-lg" style="touch-action: manipulation;">Start Game</button>
                 </div>
             </div>
 
             <!-- Mobile Controls Placeholder (Optional for small screens) -->
             <div class="mt-6 md:hidden grid grid-cols-3 gap-2 max-w-[200px] mx-auto opacity-80">
                 <div class="col-start-2">
-                    <button id="btnUp" class="w-full aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors">↑</button>
+                    <button id="btnUp" type="button" class="w-full aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors" style="touch-action: manipulation;">↑</button>
                 </div>
                 <div class="col-start-1 col-end-4 grid grid-cols-3 gap-2">
-                    <button id="btnLeft" class="aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors">←</button>
-                    <button id="btnDown" class="aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors">↓</button>
-                    <button id="btnRight" class="aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors">→</button>
+                    <button id="btnLeft" type="button" class="aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors" style="touch-action: manipulation;">←</button>
+                    <button id="btnDown" type="button" class="aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors" style="touch-action: manipulation;">↓</button>
+                    <button id="btnRight" type="button" class="aspect-square bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 active:bg-primary/20 transition-colors" style="touch-action: manipulation;">→</button>
                 </div>
             </div>
         </div>
@@ -246,17 +246,47 @@
                 }
             }
 
+            function bindPress(element, handler) {
+                let lastTouchTime = 0;
+
+                element.addEventListener('touchend', (event) => {
+                    event.preventDefault();
+                    lastTouchTime = Date.now();
+                    handler(event);
+                }, { passive: false });
+
+                element.addEventListener('click', (event) => {
+                    if (Date.now() - lastTouchTime < 500) {
+                        event.preventDefault();
+                        return;
+                    }
+                    handler(event);
+                });
+            }
+
+            function updateDirection(nextX, nextY) {
+                if (!gameActive) return;
+
+                const isReversingHorizontally = nextX !== 0 && velocityX === -nextX;
+                const isReversingVertically = nextY !== 0 && velocityY === -nextY;
+
+                if (isReversingHorizontally || isReversingVertically) return;
+
+                velocityX = nextX;
+                velocityY = nextY;
+            }
+
             document.addEventListener("keydown", handleInput);
-            startBtn.addEventListener('click', initGame);
+            bindPress(startBtn, initGame);
 
             // Initial draw to render empty board behind the start screen
             draw();
 
             // Mobile Button listeners
-            document.getElementById('btnUp').addEventListener('touchstart', (e) => { e.preventDefault(); if (velocityY !== 1) { velocityX = 0; velocityY = -1; }});
-            document.getElementById('btnDown').addEventListener('touchstart', (e) => { e.preventDefault(); if (velocityY !== -1) { velocityX = 0; velocityY = 1; }});
-            document.getElementById('btnLeft').addEventListener('touchstart', (e) => { e.preventDefault(); if (velocityX !== 1) { velocityX = -1; velocityY = 0; }});
-            document.getElementById('btnRight').addEventListener('touchstart', (e) => { e.preventDefault(); if (velocityX !== -1) { velocityX = 1; velocityY = 0; }});
+            bindPress(document.getElementById('btnUp'), () => updateDirection(0, -1));
+            bindPress(document.getElementById('btnDown'), () => updateDirection(0, 1));
+            bindPress(document.getElementById('btnLeft'), () => updateDirection(-1, 0));
+            bindPress(document.getElementById('btnRight'), () => updateDirection(1, 0));
         });
     </script>
   #endexport
