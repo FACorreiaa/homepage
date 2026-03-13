@@ -66,6 +66,48 @@
           closeMobileMenu();
         }
       });
+
+      function appendDeferredHeadLink(attributes) {
+        if (attributes.id && document.getElementById(attributes.id)) {
+          return;
+        }
+
+        const link = document.createElement('link');
+        Object.keys(attributes).forEach(function(key) {
+          link.setAttribute(key, attributes[key]);
+        });
+        document.head.appendChild(link);
+      }
+
+      function loadDeferredHeadAssets() {
+        appendDeferredHeadLink({
+          id: 'app-web-fonts',
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap'
+        });
+        appendDeferredHeadLink({
+          rel: 'manifest',
+          href: '/static/manifest.json'
+        });
+        appendDeferredHeadLink({
+          rel: 'apple-touch-icon',
+          href: '/static/icon-192.png'
+        });
+      }
+
+      function scheduleDeferredHeadAssets() {
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(loadDeferredHeadAssets, { timeout: 1500 });
+        } else {
+          window.setTimeout(loadDeferredHeadAssets, 0);
+        }
+      }
+
+      if (document.readyState === 'complete') {
+        scheduleDeferredHeadAssets();
+      } else {
+        window.addEventListener('load', scheduleDeferredHeadAssets, { once: true });
+      }
     </script>
 
     <!-- SEO Meta Tags -->
@@ -86,20 +128,17 @@
     <meta name="twitter:image" content="#if(ogImage != nil):#(ogImage)#else:https://facorreia.com/images/default-og.png#endif">
 
     <!-- PWA Meta Tags -->
-    <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/static/icon-192.png">
-
-    <!-- Font Preloads -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+      <link rel="manifest" href="/static/manifest.json">
+      <link rel="apple-touch-icon" href="/static/icon-192.png">
+    </noscript>
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/css/output.css">
-    <link rel="stylesheet" href="/css/custom.css">
   </head>
 
   <body>
@@ -122,11 +161,6 @@
         <path d="m18 15-6-6-6 6"></path>
       </svg>
     </button>
-
-    <!-- JavaScript Libraries -->
-    <script src="/js/htmx.min.js"></script>
-    <script src="/js/hyperscript.min.js"></script>
-    <script src="/js/basecoat.min.js" defer></script>
 
     <!-- Scroll-to-top visibility + Scroll reveal -->
     <script>

@@ -34,7 +34,7 @@ struct ProjectsController: RouteCollection {
                         "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
                 ),
                 ProjectItem(
-                    title: "FanAPI",
+                    title: "Pamozi CRM",
                     description:
                         "Pamozi provides dedicated used glasses for communities in need and that cannot afford them. To help with logistics, a Platform was built so they can manage data, users and stock management.",
                     tags: ["Go", "Server Side Rendering", "Templ", "HTMX", "PostgreSQL"],
