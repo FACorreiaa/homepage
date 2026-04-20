@@ -23,6 +23,16 @@ struct StackController: RouteCollection {
                                 "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
                         ),
                         TechItem(
+                            name: "Vapor", proficiency: "●●○",
+                            iconUrl:
+                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
+                        ),
+                        TechItem(
+                            name: "Hummingbird", proficiency: "●●○",
+                            iconUrl:
+                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
+                        ),
+                        TechItem(
                             name: "C#", proficiency: "●●○",
                             iconUrl:
                                 "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg"
@@ -32,20 +42,23 @@ struct StackController: RouteCollection {
                             iconUrl:
                                 "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"
                         ),
+                    ]
+                ),
+                TechSection(
+                    title: "Mobile Development",
+                    icon: "📱",
+                    backgroundClass: "bg-background",
+                    iconBgClass: "bg-indigo-500/15",
+                    technologies: [
                         TechItem(
-                            name: "JavaScript", proficiency: "●●●",
-                            iconUrl:
-                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
-                        ),
-                        TechItem(
-                            name: "Swift", proficiency: "●●○",
+                            name: "SwiftUI", proficiency: "●●○",
                             iconUrl:
                                 "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
                         ),
                         TechItem(
-                            name: "Rust", proficiency: "●●○",
+                            name: "React Native", proficiency: "●●○",
                             iconUrl:
-                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg"
+                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
                         ),
                     ]
                 ),
@@ -57,11 +70,6 @@ struct StackController: RouteCollection {
                     technologies: [
                         TechItem(
                             name: "React", proficiency: "●●●",
-                            iconUrl:
-                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
-                        ),
-                        TechItem(
-                            name: "React Native", proficiency: "●●○",
                             iconUrl:
                                 "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
                         ),
@@ -161,9 +169,9 @@ struct StackController: RouteCollection {
                                 "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg"
                         ),
                         TechItem(
-                            name: "Kafka", proficiency: "●●○",
+                            name: "GitLab", proficiency: "●●○",
                             iconUrl:
-                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apachekafka/apachekafka-original.svg"
+                                "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/gitlab/gitlab-original.svg"
                         ),
                         TechItem(
                             name: "Git", proficiency: "●●●",
