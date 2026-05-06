@@ -26,7 +26,7 @@
                 #for(tech in section.technologies):
                   <div class="tech-card glass-card flex flex-col items-center justify-center text-center p-6 hover-lift relative overflow-hidden group">
                     <div class="w-12 h-12 mb-3 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1">
-                      <img src="#(tech.iconUrl)" alt="#(tech.name) icon" class="w-full h-full object-contain filter dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.15)] drop-shadow-[0_0_8px_rgba(0,0,0,0.05)]" loading="lazy">
+                      <img src="#(tech.iconUrl)" alt="#(tech.name) icon" class="w-full h-full object-contain filter dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.15)] drop-shadow-[0_0_8px_rgba(0,0,0,0.05)]" loading="lazy" width="48" height="48">
                     </div>
                     <span class="font-semibold text-foreground block transition-colors duration-300 group-hover:text-primary">#(tech.name)</span>
                     <span class="text-xs text-primary mt-1 block tracking-wider font-mono opacity-80" aria-label="Proficiency: #(tech.proficiency)">#(tech.proficiency)</span>

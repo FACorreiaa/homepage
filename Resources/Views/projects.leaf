@@ -69,7 +69,7 @@
                       <div class="flex items-center gap-2.5">
                         <div class="project-icon">
                           #if(project.iconUrl):
-                            <img src="#(project.iconUrl)" alt="#(project.category) logo" class="w-6 h-6 object-contain">
+                            <img src="#(project.iconUrl)" alt="#(project.category) logo" class="w-6 h-6 object-contain" loading="lazy" width="24" height="24">
                           #else:
                             #(project.icon)
                           #endif
