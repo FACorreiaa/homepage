@@ -20,6 +20,20 @@ struct ProjectsController: RouteCollection {
             ],
             projects: [
                 ProjectItem(
+                    title: "StockPlan",
+                    description:
+                        "A personal stock portfolio tracker backend and SwiftUI mobile app designed for active investors. Build and maintain due diligence notes, define base/bear/bull scenarios, and follow performance across your watchlist in one place.\n\nConnect your brokers, sync data across iOS and macOS clients securely via JWT, and deploy on budget VPS instances using Docker, Postgres, and Redis.",
+                    tags: ["Vapor (Swift)", "SwiftUI", "Docker", "PostgreSQL", "Redis", "Hetzner VPS"],
+                    category: "Full Stack / iOS App",
+                    githubLink: "Private",
+                    liveLink: "https://apps.apple.com/",
+                    hasLiveLink: true,
+                    featured: true,
+                    icon: "📈",
+                    iconUrl:
+                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
+                ),
+                ProjectItem(
                     title: "FanAPI",
                     description:
                         "A RESTful API for Fandemic built with Go, featuring JWT-based authentication, real-time group chat via WebSockets, profile and contacts management, and interactive OpenAPI documentation with Scalar.",

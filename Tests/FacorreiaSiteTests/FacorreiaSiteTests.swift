@@ -4,12 +4,13 @@ import Testing
 
 @Suite("App Tests")
 struct FacorreiaSiteTests {
-    @Test("Test Hello World Route")
-    func helloWorld() async throws {
+    @Test("Test Projects Route")
+    func projects() async throws {
         try await withApp(configure: configure) { app in
-            try await app.testing().test(.GET, "hello", afterResponse: { res async in
+            try await app.testing().test(.GET, "projects", afterResponse: { res async in
                 #expect(res.status == .ok)
-                #expect(res.body.string == "Hello, world!")
+                #expect(res.body.string.contains("StockPlan"))
+                #expect(res.body.string.contains("portfolio tracker backend"))
             })
         }
     }

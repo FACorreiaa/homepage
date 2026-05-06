@@ -113,6 +113,7 @@
     <!-- SEO Meta Tags -->
     <link rel="canonical" href="https://facorreia.com/">
     <link rel="preload" href="/css/output.css" as="style">
+    <link rel="preload" href="/static/icon-192.png" as="image">
 
     <meta name="description" content="#if(seoDescription != nil):#(seoDescription)#else:FC Software Studio — Building polished web apps, high-performance iOS apps, and custom product engineering services. Founded by Fernando Correia.#endif">
     <meta name="author" content="Fernando Correia">
