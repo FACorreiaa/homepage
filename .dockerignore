@@ -52,5 +52,3 @@ default.profraw
 # Node (if any)
 node_modules/
 
-# Test artifacts
-Tests/
