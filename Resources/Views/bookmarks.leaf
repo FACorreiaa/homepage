@@ -1,123 +1,462 @@
 #extend("base"):
   #export("body"):
-    <main class="min-h-screen relative overflow-hidden flex flex-col pt-20">
-      <!-- Overlay UI -->
-      <div class="relative z-10 px-8 py-4 pointer-events-none select-none">
-        <div data-reveal="left" class="revealed">
-          <h1 class="text-4xl md:text-5xl font-bold text-foreground mb-2">Knowledge Graph</h1>
-          <p class="text-muted-foreground text-lg">Interactive digital garden of bookmarks and research notes.</p>
+    <main class="bookmarks-layout">
+      <!-- Sidebar -->
+      <aside id="bookmarks-sidebar" class="bookmarks-sidebar">
+        <div class="sidebar-header">
+          <h2 class="sidebar-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            Notes
+          </h2>
+          <span class="sidebar-count">#(totalNotes)</span>
         </div>
+
+        <div class="sidebar-search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="sidebar-filter" placeholder="Search notes..." autocomplete="off" />
+        </div>
+
+        <nav class="sidebar-tree" id="sidebar-tree">
+          #for(category in categories):
+          <div class="tree-category" data-category="#(category.name)">
+            <button class="tree-category-toggle" onclick="toggleCategory(this)" aria-expanded="true">
+              <svg class="tree-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tree-folder-icon"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+              <span class="tree-category-name">#(category.name)</span>
+              <span class="tree-category-count">#(category.items.count)</span>
+            </button>
+            <ul class="tree-items">
+              #for(item in category.items):
+              <li>
+                <a href="/bookmarks/#(item.slug)" class="tree-item-link" data-name="#(item.name)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span class="tree-item-name">#(item.name)</span>
+                </a>
+              </li>
+              #endfor
+            </ul>
+          </div>
+          #endfor
+        </nav>
+      </aside>
+
+      <!-- Toggle sidebar button (mobile) -->
+      <button id="sidebar-toggle" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" x2="9" y1="3" y2="21"/></svg>
+      </button>
+
+      <!-- Main content area -->
+      <div class="bookmarks-main">
+        <!-- Header -->
+        <div class="bookmarks-header">
+          <h1 class="text-3xl md:text-4xl font-bold text-foreground">Knowledge Graph</h1>
+          <p class="text-muted-foreground mt-1">Click a node to read · Drag to explore · Scroll to zoom</p>
+        </div>
+
+        <!-- Loading state -->
+        <div id="graph-loading" class="graph-loading-state">
+          <div class="graph-spinner"></div>
+          <p class="text-muted-foreground mt-4">Loading knowledge graph...</p>
+        </div>
+        
+        <!-- Graph Container -->
+        <div id="graph-container" class="graph-canvas-wrap"></div>
       </div>
-      
-      <!-- Graph Container -->
-      <div id="graph-container" class="flex-grow z-0 cursor-move" style="min-height: 70vh;"></div>
-      
-      <script src="https://unpkg.com/force-graph"></script>
-      <script>
-        (function() {
-          const container = document.getElementById('graph-container');
-          if (!container) return;
+    </main>
 
-          function getTheme() {
-            return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    <script src="https://unpkg.com/force-graph"></script>
+    <script>
+      // Sidebar interactions
+      function toggleCategory(btn) {
+        const category = btn.closest('.tree-category');
+        const items = category.querySelector('.tree-items');
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', !expanded);
+        items.style.display = expanded ? 'none' : 'block';
+        btn.querySelector('.tree-chevron').style.transform = expanded ? 'rotate(0deg)' : 'rotate(90deg)';
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById('bookmarks-sidebar');
+        sidebar.classList.toggle('open');
+      }
+
+      // Search filter
+      document.getElementById('sidebar-filter')?.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        const categories = document.querySelectorAll('.tree-category');
+        categories.forEach(cat => {
+          const items = cat.querySelectorAll('.tree-item-link');
+          let visibleCount = 0;
+          items.forEach(item => {
+            const name = (item.getAttribute('data-name') || '').toLowerCase();
+            const match = !query || name.includes(query);
+            item.closest('li').style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+          });
+          // Show category if any items match, also expand it
+          cat.style.display = visibleCount > 0 || !query ? '' : 'none';
+          if (query && visibleCount > 0) {
+            const btn = cat.querySelector('.tree-category-toggle');
+            btn.setAttribute('aria-expanded', 'true');
+            cat.querySelector('.tree-items').style.display = 'block';
+            btn.querySelector('.tree-chevron').style.transform = 'rotate(90deg)';
           }
+        });
+      });
 
-          let isDark = getTheme() === 'dark';
-          
-          // Obsidian-like colors
-          const colors = {
-              dark: {
-                  node: '#818cf8',
-                  link: 'rgba(255, 255, 255, 0.1)',
-                  text: 'rgba(255, 255, 255, 0.7)',
-                  particle: '#a5b4fc'
-              },
-              light: {
-                  node: '#4f46e5',
-                  link: 'rgba(0, 0, 0, 0.08)',
-                  text: 'rgba(0, 0, 0, 0.6)',
-                  particle: '#6366f1'
-              }
-          };
+      // Force Graph
+      (function() {
+        const container = document.getElementById('graph-container');
+        const loading = document.getElementById('graph-loading');
+        if (!container) return;
 
-          let activeColors = isDark ? colors.dark : colors.light;
+        function getTheme() {
+          return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        }
 
-          const graph = ForceGraph()(container)
-            .jsonUrl('/api/graph')
-            .backgroundColor('transparent')
-            .nodeLabel('name')
-            .nodeColor(node => activeColors.node)
-            .linkColor(link => activeColors.link)
-            .linkDirectionalParticles(2)
-            .linkDirectionalParticleSpeed(0.005)
-            .linkDirectionalParticleWidth(1)
-            .onNodeClick(node => {
-              window.location.href = `/bookmarks/${node.id}`;
-            })
-            .nodeCanvasObject((node, ctx, globalScale) => {
-              const label = node.name;
-              const fontSize = 12 / globalScale;
-              ctx.font = `${fontSize}px Sora, sans-serif`;
-              
-              // Draw node circle
-              const r = 4 / globalScale;
-              ctx.beginPath();
-              ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
-              ctx.fillStyle = activeColors.node;
-              ctx.fill();
-              
-              // Glow effect
-              if (getTheme() === 'dark') {
-                  ctx.shadowColor = activeColors.node;
-                  ctx.shadowBlur = 10 / globalScale;
-              }
+        let isDark = getTheme() === 'dark';
 
-              // Draw label if zoomed in enough
-              if (globalScale > 1.2) {
+        const categoryColors = [
+          '#818cf8', '#34d399', '#f472b6', '#fbbf24',
+          '#60a5fa', '#a78bfa', '#fb923c', '#2dd4bf',
+          '#f87171', '#4ade80', '#e879f9', '#38bdf8',
+        ];
+        
+        const colors = {
+          dark:  { link: 'rgba(255, 255, 255, 0.06)', text: 'rgba(255, 255, 255, 0.75)', particle: '#a5b4fc' },
+          light: { link: 'rgba(0, 0, 0, 0.06)',       text: 'rgba(0, 0, 0, 0.6)',       particle: '#6366f1' }
+        };
+
+        let activeColors = isDark ? colors.dark : colors.light;
+
+        function nodeColor(node) {
+          return categoryColors[(node.group || 0) % categoryColors.length];
+        }
+
+        fetch('/api/graph')
+          .then(r => r.json())
+          .then(data => {
+            loading.style.display = 'none';
+            container.style.display = 'block';
+
+            const graph = ForceGraph()(container)
+              .graphData(data)
+              .backgroundColor('transparent')
+              .nodeLabel(n => `${n.name}\n(${n.category})`)
+              .nodeColor(nodeColor)
+              .linkColor(() => activeColors.link)
+              .linkDirectionalParticles(2)
+              .linkDirectionalParticleSpeed(0.004)
+              .linkDirectionalParticleWidth(1.5)
+              .linkDirectionalParticleColor(() => activeColors.particle)
+              .warmupTicks(80)
+              .cooldownTicks(200)
+              .onNodeClick(node => {
+                window.location.href = `/bookmarks/${node.id}`;
+              })
+              .onNodeHover(node => {
+                container.style.cursor = node ? 'pointer' : 'move';
+              })
+              .nodeCanvasObject((node, ctx, globalScale) => {
+                const r = Math.max(3, 5 / globalScale);
+                const color = nodeColor(node);
+                
+                // Node circle
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                // Glow
+                if (isDark) {
+                  ctx.shadowColor = color;
+                  ctx.shadowBlur = 12 / globalScale;
+                  ctx.beginPath();
+                  ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+                  ctx.fill();
+                  ctx.shadowBlur = 0;
+                }
+
+                // Label when zoomed
+                if (globalScale > 1.2) {
+                  const fontSize = 11 / globalScale;
+                  ctx.font = `${fontSize}px Sora, sans-serif`;
                   ctx.textAlign = 'center';
                   ctx.textBaseline = 'middle';
                   ctx.fillStyle = activeColors.text;
-                  ctx.fillText(label, node.x, node.y + 10 / globalScale);
-              }
-              
-              ctx.shadowBlur = 0; // reset
-            });
+                  ctx.fillText(node.name, node.x, node.y + (r + 8) / globalScale);
+                }
+                ctx.shadowBlur = 0;
+              });
 
-          // Handle Resize
-          const resize = () => {
-            const w = container.offsetWidth;
-            const h = container.offsetHeight || (window.innerHeight - 200);
-            graph.width(w);
-            graph.height(h);
-          };
-          window.addEventListener('resize', resize);
-          
-          // Observer for theme changes
-          const observer = new MutationObserver(() => {
+            const resize = () => {
+              const w = container.offsetWidth;
+              const h = container.offsetHeight || (window.innerHeight - 160);
+              graph.width(w);
+              graph.height(h);
+            };
+            window.addEventListener('resize', resize);
+            
+            const observer = new MutationObserver(() => {
               const newDark = getTheme() === 'dark';
               if (newDark !== isDark) {
-                  isDark = newDark;
-                  activeColors = isDark ? colors.dark : colors.light;
-                  graph.nodeColor(node => activeColors.node)
-                       .linkColor(link => activeColors.link);
+                isDark = newDark;
+                activeColors = isDark ? colors.dark : colors.light;
+                graph.linkColor(() => activeColors.link);
               }
+            });
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+            setTimeout(resize, 100);
+            graph.d3Force('charge').strength(-120);
+            graph.d3Force('link').distance(40);
+          })
+          .catch(err => {
+            loading.innerHTML = `
+              <div class="text-center">
+                <p class="text-muted-foreground">Failed to load graph data.</p>
+                <p class="text-sm text-muted-foreground mt-2">${err.message}</p>
+              </div>
+            `;
           });
-          observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+      })();
+    </script>
 
-          // Initial load
-          setTimeout(resize, 100);
-          
-          // Force layout stabilization
-          graph.d3Force('charge').strength(-150);
-          graph.d3Force('link').distance(50);
-        })();
-      </script>
+    <style>
+      /* ===== Layout ===== */
+      .bookmarks-layout {
+        display: flex;
+        min-height: 100vh;
+        padding-top: 3.5rem; /* navbar height */
+      }
 
-      <style>
-        #graph-container canvas {
-          display: block;
+      /* ===== Sidebar ===== */
+      .bookmarks-sidebar {
+        width: 280px;
+        min-width: 280px;
+        border-right: 1px solid var(--border);
+        background: var(--card);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: sticky;
+        top: 3.5rem;
+        height: calc(100vh - 3.5rem);
+        z-index: 20;
+        transition: transform 0.25s ease;
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1rem 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .sidebar-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--foreground);
+        margin: 0;
+      }
+      .sidebar-count {
+        font-size: 0.7rem;
+        font-weight: 600;
+        background: var(--muted);
+        color: var(--muted-foreground);
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+      }
+
+      .sidebar-search {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+        color: var(--muted-foreground);
+      }
+      .sidebar-search input {
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 0.8125rem;
+        color: var(--foreground);
+        width: 100%;
+        font-family: inherit;
+      }
+      .sidebar-search input::placeholder {
+        color: var(--muted-foreground);
+      }
+
+      .sidebar-tree {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5rem 0;
+      }
+      .sidebar-tree::-webkit-scrollbar {
+        width: 4px;
+      }
+      .sidebar-tree::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+      }
+
+      /* ===== Tree items ===== */
+      .tree-category { margin-bottom: 0.125rem; }
+
+      .tree-category-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        width: 100%;
+        padding: 0.375rem 1rem;
+        background: none;
+        border: none;
+        color: var(--foreground);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        text-align: left;
+        transition: background 0.15s;
+      }
+      .tree-category-toggle:hover { background: var(--muted); }
+
+      .tree-chevron {
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+        transform: rotate(90deg);
+      }
+      .tree-folder-icon {
+        flex-shrink: 0;
+        color: var(--primary);
+        opacity: 0.7;
+      }
+      .tree-category-name { flex: 1; }
+      .tree-category-count {
+        font-size: 0.65rem;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        background: var(--muted);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+      }
+
+      .tree-items {
+        list-style: none;
+        margin: 0;
+        padding: 0 0 0.25rem;
+      }
+      .tree-items li { margin: 0; }
+
+      .tree-item-link {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.3rem 1rem 0.3rem 2.25rem;
+        font-size: 0.775rem;
+        color: var(--muted-foreground);
+        text-decoration: none;
+        transition: all 0.15s;
+        border-left: 2px solid transparent;
+        line-height: 1.3;
+      }
+      .tree-item-link:hover {
+        color: var(--foreground);
+        background: var(--muted);
+      }
+      .tree-item-link.active {
+        color: var(--primary);
+        border-left-color: var(--primary);
+        background: rgba(79, 70, 229, 0.06);
+      }
+      .dark .tree-item-link.active {
+        background: rgba(129, 140, 248, 0.1);
+      }
+
+      .tree-item-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ===== Main area ===== */
+      .bookmarks-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        position: relative;
+      }
+
+      .bookmarks-header {
+        padding: 1.5rem 2rem 0.5rem;
+        pointer-events: none;
+        position: relative;
+        z-index: 5;
+      }
+
+      .graph-loading-state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .graph-canvas-wrap {
+        flex: 1;
+        display: none;
+        cursor: move;
+        min-height: 0;
+      }
+      #graph-container canvas { display: block; }
+
+      .graph-spinner {
+        width: 40px; height: 40px;
+        border: 3px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ===== Sidebar toggle (mobile) ===== */
+      .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 4.5rem;
+        left: 0.75rem;
+        z-index: 25;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        color: var(--foreground);
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      @media (max-width: 768px) {
+        .bookmarks-sidebar {
+          position: fixed;
+          top: 3.5rem;
+          left: 0;
+          height: calc(100vh - 3.5rem);
+          transform: translateX(-100%);
+          box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+          z-index: 30;
         }
-      </style>
-    </main>
+        .bookmarks-sidebar.open {
+          transform: translateX(0);
+        }
+        .sidebar-toggle { display: block; }
+        .bookmarks-header { padding-left: 3.5rem; }
+      }
+    </style>
   #endexport
 #endextend

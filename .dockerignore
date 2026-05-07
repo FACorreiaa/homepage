@@ -1,3 +1,56 @@
+# Build artifacts
 .build/
 .swiftpm/
-docs
+
+# IDE & editor
+.vscode/
+*.xcodeproj
+xcuserdata/
+DerivedData/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Documentation & non-runtime
+docs/
+README.md
+Makefile
+Caddyfile
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Docker (prevent recursive copy)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# macOS junk
+.DS_Store
+**/.DS_Store
+
+# Vault symlink (notes are read at runtime, not baked into image)
+Public/vault
+
+# Databases (ephemeral / mounted at runtime)
+*.sqlite
+db.sqlite
+
+# Tailwind binary (downloaded during build)
+tailwindcss
+
+# Generated CSS (rebuilt during docker build)
+Public/css/output.css
+
+# Profiling
+default.profraw
+
+# Node (if any)
+node_modules/
+
+# Test artifacts
+Tests/
