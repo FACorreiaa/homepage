@@ -47,20 +47,23 @@
 
       <!-- Main content area -->
       <div class="bookmarks-main">
-        <!-- Header -->
+        <!-- Header overlay -->
         <div class="bookmarks-header">
-          <h1 class="text-3xl md:text-4xl font-bold text-foreground">Knowledge Graph</h1>
-          <p class="text-muted-foreground mt-1">Click a node to read · Drag to explore · Scroll to zoom</p>
+          <h1>Knowledge Graph</h1>
+          <p>Click a node to read · Drag to explore · Scroll to zoom</p>
         </div>
 
         <!-- Loading state -->
         <div id="graph-loading" class="graph-loading-state">
           <div class="graph-spinner"></div>
-          <p class="text-muted-foreground mt-4">Loading knowledge graph...</p>
+          <p>Initializing neural map...</p>
         </div>
         
         <!-- Graph Container -->
         <div id="graph-container" class="graph-canvas-wrap"></div>
+
+        <!-- Node info tooltip -->
+        <div id="node-tooltip" class="node-tooltip"></div>
       </div>
     </main>
 
@@ -77,15 +80,13 @@
       }
 
       function toggleSidebar() {
-        const sidebar = document.getElementById('bookmarks-sidebar');
-        sidebar.classList.toggle('open');
+        document.getElementById('bookmarks-sidebar').classList.toggle('open');
       }
 
       // Search filter
       document.getElementById('sidebar-filter')?.addEventListener('input', function(e) {
         const query = e.target.value.toLowerCase().trim();
-        const categories = document.querySelectorAll('.tree-category');
-        categories.forEach(cat => {
+        document.querySelectorAll('.tree-category').forEach(cat => {
           const items = cat.querySelectorAll('.tree-item-link');
           let visibleCount = 0;
           items.forEach(item => {
@@ -94,7 +95,6 @@
             item.closest('li').style.display = match ? '' : 'none';
             if (match) visibleCount++;
           });
-          // Show category if any items match, also expand it
           cat.style.display = visibleCount > 0 || !query ? '' : 'none';
           if (query && visibleCount > 0) {
             const btn = cat.querySelector('.tree-category-toggle');
@@ -105,34 +105,33 @@
         });
       });
 
-      // Force Graph
+      // ===== Force Graph — Sci-Fi Theme =====
       (function() {
         const container = document.getElementById('graph-container');
         const loading = document.getElementById('graph-loading');
+        const tooltip = document.getElementById('node-tooltip');
         if (!container) return;
 
-        function getTheme() {
-          return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        }
-
-        let isDark = getTheme() === 'dark';
-
+        // Neon category palette
         const categoryColors = [
-          '#818cf8', '#34d399', '#f472b6', '#fbbf24',
-          '#60a5fa', '#a78bfa', '#fb923c', '#2dd4bf',
-          '#f87171', '#4ade80', '#e879f9', '#38bdf8',
+          '#00f0ff', // cyan
+          '#ff2d55', // hot pink
+          '#5856d6', // deep violet
+          '#30d158', // matrix green
+          '#ff9f0a', // amber
+          '#bf5af2', // purple
+          '#64d2ff', // ice blue
+          '#ff375f', // coral
+          '#ffd60a', // gold
+          '#32d74b', // green
+          '#ac8e68', // bronze
+          '#0a84ff', // electric blue
+          '#ff6482', // rose
         ];
-        
-        const colors = {
-          dark:  { link: 'rgba(255, 255, 255, 0.06)', text: 'rgba(255, 255, 255, 0.75)', particle: '#a5b4fc' },
-          light: { link: 'rgba(0, 0, 0, 0.06)',       text: 'rgba(0, 0, 0, 0.6)',       particle: '#6366f1' }
-        };
 
-        let activeColors = isDark ? colors.dark : colors.light;
-
-        function nodeColor(node) {
-          return categoryColors[(node.group || 0) % categoryColors.length];
-        }
+        let hoveredNode = null;
+        let highlightNodes = new Set();
+        let highlightLinks = new Set();
 
         fetch('/api/graph')
           .then(r => r.json())
@@ -140,83 +139,184 @@
             loading.style.display = 'none';
             container.style.display = 'block';
 
+            // Build neighbor maps for highlight
+            const neighborMap = {};
+            data.links.forEach(link => {
+              const s = typeof link.source === 'object' ? link.source.id : link.source;
+              const t = typeof link.target === 'object' ? link.target.id : link.target;
+              if (!neighborMap[s]) neighborMap[s] = new Set();
+              if (!neighborMap[t]) neighborMap[t] = new Set();
+              neighborMap[s].add(t);
+              neighborMap[t].add(s);
+            });
+
             const graph = ForceGraph()(container)
               .graphData(data)
               .backgroundColor('transparent')
-              .nodeLabel(n => `${n.name}\n(${n.category})`)
-              .nodeColor(nodeColor)
-              .linkColor(() => activeColors.link)
-              .linkDirectionalParticles(2)
-              .linkDirectionalParticleSpeed(0.004)
-              .linkDirectionalParticleWidth(1.5)
-              .linkDirectionalParticleColor(() => activeColors.particle)
-              .warmupTicks(80)
-              .cooldownTicks(200)
+              .nodeLabel('')
+              .linkColor(link => {
+                if (!hoveredNode) return 'rgba(100, 210, 255, 0.06)';
+                const s = typeof link.source === 'object' ? link.source.id : link.source;
+                const t = typeof link.target === 'object' ? link.target.id : link.target;
+                if (s === hoveredNode.id || t === hoveredNode.id) {
+                  return 'rgba(0, 240, 255, 0.4)';
+                }
+                return 'rgba(100, 210, 255, 0.03)';
+              })
+              .linkWidth(link => {
+                if (!hoveredNode) return 0.3;
+                const s = typeof link.source === 'object' ? link.source.id : link.source;
+                const t = typeof link.target === 'object' ? link.target.id : link.target;
+                return (s === hoveredNode.id || t === hoveredNode.id) ? 1.5 : 0.15;
+              })
+              .linkDirectionalParticles(link => {
+                if (!hoveredNode) return 0;
+                const s = typeof link.source === 'object' ? link.source.id : link.source;
+                const t = typeof link.target === 'object' ? link.target.id : link.target;
+                return (s === hoveredNode.id || t === hoveredNode.id) ? 3 : 0;
+              })
+              .linkDirectionalParticleSpeed(0.006)
+              .linkDirectionalParticleWidth(2)
+              .linkDirectionalParticleColor(() => '#00f0ff')
+              .warmupTicks(120)
+              .cooldownTicks(300)
               .onNodeClick(node => {
+                if (node.isHub) return;
                 window.location.href = `/bookmarks/${node.id}`;
               })
               .onNodeHover(node => {
-                container.style.cursor = node ? 'pointer' : 'move';
+                container.style.cursor = node && !node.isHub ? 'pointer' : node ? 'grab' : 'default';
+                hoveredNode = node || null;
+                
+                highlightNodes.clear();
+                highlightLinks.clear();
+                
+                if (node) {
+                  highlightNodes.add(node.id);
+                  const neighbors = neighborMap[node.id];
+                  if (neighbors) neighbors.forEach(n => highlightNodes.add(n));
+                  
+                  // Show tooltip
+                  tooltip.innerHTML = `
+                    <div class="tooltip-category" style="color: ${categoryColors[node.group % categoryColors.length]}">${node.category}</div>
+                    <div class="tooltip-name">${node.name}</div>
+                    ${node.isHub ? '<div class="tooltip-hub">Category Hub</div>' : '<div class="tooltip-action">Click to read →</div>'}
+                  `;
+                  tooltip.style.display = 'block';
+                } else {
+                  tooltip.style.display = 'none';
+                }
+                
+                graph.linkWidth(graph.linkWidth());
+                graph.linkColor(graph.linkColor());
+                graph.linkDirectionalParticles(graph.linkDirectionalParticles());
               })
               .nodeCanvasObject((node, ctx, globalScale) => {
-                const r = Math.max(3, 5 / globalScale);
-                const color = nodeColor(node);
+                const isHub = node.isHub;
+                const color = categoryColors[node.group % categoryColors.length];
+                const isHighlighted = highlightNodes.has(node.id);
+                const dimmed = hoveredNode && !isHighlighted;
                 
-                // Node circle
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
-                ctx.fillStyle = color;
-                ctx.fill();
-                
-                // Glow
-                if (isDark) {
-                  ctx.shadowColor = color;
-                  ctx.shadowBlur = 12 / globalScale;
+                if (isHub) {
+                  // === Hub node: hexagonal glow ===
+                  const r = Math.max(6, (node.val || 3) * 1.2);
+                  
+                  // Outer glow
+                  const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 3);
+                  gradient.addColorStop(0, color + '40');
+                  gradient.addColorStop(0.5, color + '15');
+                  gradient.addColorStop(1, 'transparent');
                   ctx.beginPath();
-                  ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+                  ctx.arc(node.x, node.y, r * 3, 0, 2 * Math.PI);
+                  ctx.fillStyle = gradient;
                   ctx.fill();
-                  ctx.shadowBlur = 0;
-                }
+                  
+                  // Core
+                  ctx.beginPath();
+                  ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+                  ctx.fillStyle = dimmed ? color + '30' : color;
+                  ctx.fill();
+                  
+                  // Inner glow ring
+                  ctx.strokeStyle = dimmed ? color + '20' : color + '80';
+                  ctx.lineWidth = 1.5 / globalScale;
+                  ctx.stroke();
 
-                // Label when zoomed
-                if (globalScale > 1.2) {
-                  const fontSize = 11 / globalScale;
-                  ctx.font = `${fontSize}px Sora, sans-serif`;
+                  // Label (always visible for hubs)
+                  const fontSize = Math.max(11, 14 / globalScale);
+                  ctx.font = `700 ${fontSize}px Sora, sans-serif`;
                   ctx.textAlign = 'center';
                   ctx.textBaseline = 'middle';
-                  ctx.fillStyle = activeColors.text;
-                  ctx.fillText(node.name, node.x, node.y + (r + 8) / globalScale);
+                  ctx.fillStyle = dimmed ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.9)';
+                  ctx.fillText(node.name, node.x, node.y + r + fontSize * 0.9);
+                  
+                } else {
+                  // === File node: glowing dot ===
+                  const r = Math.max(2, 3.5 / globalScale);
+
+                  // Glow
+                  if (!dimmed) {
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = isHighlighted ? 16 / globalScale : 8 / globalScale;
+                  }
+
+                  ctx.beginPath();
+                  ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+                  ctx.fillStyle = dimmed ? color + '25' : (isHighlighted ? color : color + 'cc');
+                  ctx.fill();
+                  ctx.shadowBlur = 0;
+
+                  // Label when zoomed or highlighted
+                  if (globalScale > 2.5 || (isHighlighted && hoveredNode)) {
+                    const fontSize = 10 / globalScale;
+                    ctx.font = `${fontSize}px Sora, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = dimmed ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.7)';
+                    const maxChars = 35;
+                    const label = node.name.length > maxChars ? node.name.slice(0, maxChars) + '…' : node.name;
+                    ctx.fillText(label, node.x, node.y + (r + 6) / globalScale);
+                  }
                 }
-                ctx.shadowBlur = 0;
+              })
+              .nodePointerAreaPaint((node, color, ctx) => {
+                const r = node.isHub ? Math.max(6, (node.val || 3) * 1.2) : 6;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+                ctx.fillStyle = color;
+                ctx.fill();
               });
 
+            // Layout tuning
+            graph.d3Force('charge').strength(-80);
+            graph.d3Force('link').distance(link => {
+              const s = typeof link.source === 'object' ? link.source : { isHub: false };
+              const t = typeof link.target === 'object' ? link.target : { isHub: false };
+              return (s.isHub || t.isHub) ? 60 : 30;
+            });
+
+            // Handle Resize
             const resize = () => {
               const w = container.offsetWidth;
-              const h = container.offsetHeight || (window.innerHeight - 160);
+              const h = container.offsetHeight || (window.innerHeight - 120);
               graph.width(w);
               graph.height(h);
             };
             window.addEventListener('resize', resize);
-            
-            const observer = new MutationObserver(() => {
-              const newDark = getTheme() === 'dark';
-              if (newDark !== isDark) {
-                isDark = newDark;
-                activeColors = isDark ? colors.dark : colors.light;
-                graph.linkColor(() => activeColors.link);
-              }
-            });
-            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+            setTimeout(resize, 50);
 
-            setTimeout(resize, 100);
-            graph.d3Force('charge').strength(-120);
-            graph.d3Force('link').distance(40);
+            // Track mouse for tooltip
+            container.addEventListener('mousemove', (e) => {
+              const rect = container.getBoundingClientRect();
+              tooltip.style.left = (e.clientX - rect.left + 16) + 'px';
+              tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+            });
           })
           .catch(err => {
             loading.innerHTML = `
               <div class="text-center">
-                <p class="text-muted-foreground">Failed to load graph data.</p>
-                <p class="text-sm text-muted-foreground mt-2">${err.message}</p>
+                <p style="color: rgba(255,255,255,0.5)">Failed to load graph data.</p>
+                <p style="color: rgba(255,255,255,0.3); font-size: 0.8rem; margin-top: 0.5rem">${err.message}</p>
               </div>
             `;
           });
@@ -228,15 +328,17 @@
       .bookmarks-layout {
         display: flex;
         min-height: 100vh;
-        padding-top: 3.5rem; /* navbar height */
+        padding-top: 3.5rem;
+        background: #0a0a14;
       }
 
       /* ===== Sidebar ===== */
       .bookmarks-sidebar {
-        width: 280px;
-        min-width: 280px;
-        border-right: 1px solid var(--border);
-        background: var(--card);
+        width: 260px;
+        min-width: 260px;
+        border-right: 1px solid rgba(100, 210, 255, 0.08);
+        background: rgba(10, 10, 25, 0.95);
+        backdrop-filter: blur(12px);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -251,139 +353,105 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem 1rem 0.5rem;
-        border-bottom: 1px solid var(--border);
+        padding: 1rem 1rem 0.75rem;
+        border-bottom: 1px solid rgba(100, 210, 255, 0.08);
       }
       .sidebar-title {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         font-weight: 600;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: var(--foreground);
+        color: rgba(255,255,255,0.8);
         margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
       }
       .sidebar-count {
-        font-size: 0.7rem;
-        font-weight: 600;
-        background: var(--muted);
-        color: var(--muted-foreground);
+        font-size: 0.65rem;
+        font-weight: 700;
+        background: rgba(0, 240, 255, 0.12);
+        color: #00f0ff;
         padding: 0.15rem 0.5rem;
         border-radius: 9999px;
+        border: 1px solid rgba(0, 240, 255, 0.2);
       }
 
       .sidebar-search {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--border);
-        color: var(--muted-foreground);
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid rgba(100, 210, 255, 0.08);
+        color: rgba(255,255,255,0.3);
       }
       .sidebar-search input {
         background: transparent;
         border: none;
         outline: none;
-        font-size: 0.8125rem;
-        color: var(--foreground);
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.8);
         width: 100%;
         font-family: inherit;
       }
-      .sidebar-search input::placeholder {
-        color: var(--muted-foreground);
-      }
+      .sidebar-search input::placeholder { color: rgba(255,255,255,0.25); }
 
       .sidebar-tree {
         flex: 1;
         overflow-y: auto;
         padding: 0.5rem 0;
       }
-      .sidebar-tree::-webkit-scrollbar {
-        width: 4px;
-      }
-      .sidebar-tree::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 4px;
-      }
+      .sidebar-tree::-webkit-scrollbar { width: 3px; }
+      .sidebar-tree::-webkit-scrollbar-thumb { background: rgba(100, 210, 255, 0.15); border-radius: 4px; }
+      .sidebar-tree::-webkit-scrollbar-track { background: transparent; }
 
-      /* ===== Tree items ===== */
       .tree-category { margin-bottom: 0.125rem; }
-
       .tree-category-toggle {
         display: flex;
         align-items: center;
         gap: 0.375rem;
         width: 100%;
-        padding: 0.375rem 1rem;
+        padding: 0.375rem 0.75rem;
         background: none;
         border: none;
-        color: var(--foreground);
-        font-size: 0.8125rem;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.78rem;
         font-weight: 600;
         cursor: pointer;
         font-family: inherit;
         text-align: left;
-        transition: background 0.15s;
+        transition: all 0.15s;
       }
-      .tree-category-toggle:hover { background: var(--muted); }
-
-      .tree-chevron {
-        transition: transform 0.2s ease;
-        flex-shrink: 0;
-        transform: rotate(90deg);
-      }
-      .tree-folder-icon {
-        flex-shrink: 0;
-        color: var(--primary);
-        opacity: 0.7;
-      }
+      .tree-category-toggle:hover { background: rgba(100, 210, 255, 0.06); color: rgba(255,255,255,0.9); }
+      .tree-chevron { transition: transform 0.2s ease; flex-shrink: 0; transform: rotate(90deg); color: rgba(255,255,255,0.3); }
+      .tree-folder-icon { flex-shrink: 0; color: #00f0ff; opacity: 0.5; }
       .tree-category-name { flex: 1; }
       .tree-category-count {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 500;
-        color: var(--muted-foreground);
-        background: var(--muted);
-        padding: 0.1rem 0.4rem;
-        border-radius: 4px;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.05);
+        padding: 0.1rem 0.35rem;
+        border-radius: 3px;
       }
 
-      .tree-items {
-        list-style: none;
-        margin: 0;
-        padding: 0 0 0.25rem;
-      }
+      .tree-items { list-style: none; margin: 0; padding: 0 0 0.25rem; }
       .tree-items li { margin: 0; }
-
       .tree-item-link {
         display: flex;
         align-items: center;
-        gap: 0.375rem;
-        padding: 0.3rem 1rem 0.3rem 2.25rem;
-        font-size: 0.775rem;
-        color: var(--muted-foreground);
+        gap: 0.35rem;
+        padding: 0.25rem 0.75rem 0.25rem 2rem;
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.35);
         text-decoration: none;
         transition: all 0.15s;
         border-left: 2px solid transparent;
         line-height: 1.3;
       }
-      .tree-item-link:hover {
-        color: var(--foreground);
-        background: var(--muted);
-      }
-      .tree-item-link.active {
-        color: var(--primary);
-        border-left-color: var(--primary);
-        background: rgba(79, 70, 229, 0.06);
-      }
-      .dark .tree-item-link.active {
-        background: rgba(129, 140, 248, 0.1);
-      }
-
-      .tree-item-name {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
+      .tree-item-link:hover { color: rgba(255,255,255,0.8); background: rgba(100, 210, 255, 0.06); }
+      .tree-item-link.active { color: #00f0ff; border-left-color: #00f0ff; background: rgba(0, 240, 255, 0.06); }
+      .tree-item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
       /* ===== Main area ===== */
       .bookmarks-main {
@@ -392,68 +460,119 @@
         flex-direction: column;
         min-width: 0;
         position: relative;
+        background:
+          radial-gradient(ellipse at 30% 20%, rgba(0, 240, 255, 0.03) 0%, transparent 50%),
+          radial-gradient(ellipse at 70% 80%, rgba(88, 86, 214, 0.03) 0%, transparent 50%),
+          #0a0a14;
       }
 
       .bookmarks-header {
-        padding: 1.5rem 2rem 0.5rem;
-        pointer-events: none;
-        position: relative;
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        padding: 1.25rem 2rem;
         z-index: 5;
+        pointer-events: none;
+      }
+      .bookmarks-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.85);
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+      .bookmarks-header p {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.25);
+        margin: 0.25rem 0 0;
       }
 
+      /* Loading */
       .graph-loading-state {
         flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        color: rgba(255,255,255,0.4);
+        font-size: 0.85rem;
       }
-      .graph-canvas-wrap {
-        flex: 1;
-        display: none;
-        cursor: move;
-        min-height: 0;
-      }
+      .graph-canvas-wrap { flex: 1; display: none; cursor: default; min-height: 0; }
       #graph-container canvas { display: block; }
 
       .graph-spinner {
-        width: 40px; height: 40px;
-        border: 3px solid var(--border);
-        border-top-color: var(--primary);
+        width: 36px; height: 36px;
+        border: 2px solid rgba(0, 240, 255, 0.15);
+        border-top-color: #00f0ff;
         border-radius: 50%;
-        animation: spin 0.8s linear infinite;
+        animation: spin 1s linear infinite;
       }
       @keyframes spin { to { transform: rotate(360deg); } }
 
-      /* ===== Sidebar toggle (mobile) ===== */
+      /* Node Tooltip */
+      .node-tooltip {
+        display: none;
+        position: absolute;
+        pointer-events: none;
+        z-index: 30;
+        background: rgba(10, 10, 25, 0.92);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 240, 255, 0.15);
+        border-radius: 8px;
+        padding: 0.6rem 0.8rem;
+        max-width: 280px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 240, 255, 0.08);
+      }
+      .tooltip-category {
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.2rem;
+      }
+      .tooltip-name {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: rgba(255,255,255,0.9);
+        line-height: 1.3;
+      }
+      .tooltip-hub {
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.3);
+        margin-top: 0.3rem;
+      }
+      .tooltip-action {
+        font-size: 0.6rem;
+        color: #00f0ff;
+        margin-top: 0.3rem;
+        opacity: 0.7;
+      }
+
+      /* ===== Mobile ===== */
       .sidebar-toggle {
         display: none;
         position: fixed;
         top: 4.5rem;
         left: 0.75rem;
         z-index: 25;
-        background: var(--card);
-        border: 1px solid var(--border);
+        background: rgba(10, 10, 25, 0.9);
+        border: 1px solid rgba(100, 210, 255, 0.15);
         border-radius: 0.5rem;
         padding: 0.5rem;
-        color: var(--foreground);
+        color: rgba(255,255,255,0.7);
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
       }
 
       @media (max-width: 768px) {
         .bookmarks-sidebar {
           position: fixed;
-          top: 3.5rem;
-          left: 0;
+          top: 3.5rem; left: 0;
           height: calc(100vh - 3.5rem);
           transform: translateX(-100%);
-          box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+          box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
           z-index: 30;
         }
-        .bookmarks-sidebar.open {
-          transform: translateX(0);
-        }
+        .bookmarks-sidebar.open { transform: translateX(0); }
         .sidebar-toggle { display: block; }
         .bookmarks-header { padding-left: 3.5rem; }
       }

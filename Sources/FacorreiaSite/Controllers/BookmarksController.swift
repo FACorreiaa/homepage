@@ -206,10 +206,11 @@ struct BookmarksController: RouteCollection {
         let files = try discoverFiles(for: req)
         var nodes: [GraphNode] = []
         var links: [GraphLink] = []
-        let nodeIds = Set(files.map { $0.slug })
+        var nodeIds = Set<String>()
 
-        // Group by category to assign visual grouping
+        // Group by category
         var categoryIndex: [String: Int] = [:]
+        var categorizedFiles: [String: [VaultFile]] = [:]
         var nextGroup = 0
 
         for file in files {
@@ -217,12 +218,71 @@ struct BookmarksController: RouteCollection {
                 categoryIndex[file.category] = nextGroup
                 nextGroup += 1
             }
-            let group = categoryIndex[file.category] ?? 0
-            nodes.append(GraphNode(id: file.slug, name: file.name, val: 1, group: group, category: file.category))
+            categorizedFiles[file.category, default: []].append(file)
         }
 
-        // Parse wikilinks for edges
-        let regex = try NSRegularExpression(
+        // 1. Create category hub nodes
+        for (category, group) in categoryIndex {
+            let hubId = "hub-\(category.lowercased().replacingOccurrences(of: " ", with: "-"))"
+            let fileCount = categorizedFiles[category]?.count ?? 0
+            nodes.append(GraphNode(
+                id: hubId,
+                name: category,
+                val: max(3, fileCount / 2),
+                group: group,
+                category: category,
+                isHub: true
+            ))
+            nodeIds.insert(hubId)
+        }
+
+        // 2. Create file nodes + link each to its category hub
+        for file in files {
+            let group = categoryIndex[file.category] ?? 0
+            nodes.append(GraphNode(
+                id: file.slug,
+                name: file.name,
+                val: 1,
+                group: group,
+                category: file.category,
+                isHub: false
+            ))
+            nodeIds.insert(file.slug)
+
+            let hubId = "hub-\(file.category.lowercased().replacingOccurrences(of: " ", with: "-"))"
+            links.append(GraphLink(source: file.slug, target: hubId))
+        }
+
+        // 3. Extract @author from filenames → create author links
+        // Pattern: "Thread by @AuthorName" or "@AuthorName on X" etc.
+        var authorFiles: [String: [String]] = [:]  // authorId -> [fileSlug]
+        let authorRegex = try NSRegularExpression(
+            pattern: "@([A-Za-z0-9_]+)",
+            options: []
+        )
+
+        for file in files {
+            let range = NSRange(file.name.startIndex..<file.name.endIndex, in: file.name)
+            let matches = authorRegex.matches(in: file.name, options: [], range: range)
+            for match in matches {
+                guard let authorRange = Range(match.range(at: 1), in: file.name) else { continue }
+                let author = String(file.name[authorRange]).lowercased()
+                // Skip very short handles
+                guard author.count > 2 else { continue }
+                authorFiles[author, default: []].append(file.slug)
+            }
+        }
+
+        // Connect files that share the same author (all to each other via first file as mini-hub)
+        for (_, fileSlugs) in authorFiles where fileSlugs.count > 1 {
+            let anchor = fileSlugs[0]
+            for slug in fileSlugs.dropFirst() {
+                links.append(GraphLink(source: anchor, target: slug))
+            }
+        }
+
+        // 4. Parse wikilinks for direct edges
+        let wikilinkRegex = try NSRegularExpression(
             pattern: "\\[\\[([^\\]|]+)(?:\\|([^\\]]+))?\\]\\]",
             options: []
         )
@@ -233,7 +293,7 @@ struct BookmarksController: RouteCollection {
             }
 
             let range = NSRange(content.startIndex..<content.endIndex, in: content)
-            let matches = regex.matches(in: content, options: [], range: range)
+            let matches = wikilinkRegex.matches(in: content, options: [], range: range)
 
             for match in matches {
                 guard let targetRange = Range(match.range(at: 1), in: content) else { continue }
@@ -323,6 +383,7 @@ struct GraphNode: Content {
     let val: Int
     let group: Int
     let category: String
+    let isHub: Bool
 }
 
 struct GraphLink: Content {

@@ -10,7 +10,7 @@
 
 PROJECT_NAME := FacorreiaSite
 
-.PHONY: all build run css css-watch css-minify dev setup clean help
+.PHONY: all build run css css-watch css-minify dev setup clean help sync-vault sync-vault-restart sync-vault-local
 
 all: build
 
@@ -79,6 +79,37 @@ clean: ## Remove build artifacts
 	rm -f tailwindcss
 
 # =========================================================================
+# Vault Sync (Obsidian notes)
+# =========================================================================
+
+HERMES_HOST   := root@78.46.192.73
+HERMES_VAULT  := ~/.hermes/obsidian-vault/FACorreia/raw/
+HOMEPAGE_HOST := root@49.13.165.238
+HOMEPAGE_VAULT := /var/www/homepage/vault/raw/
+
+sync-vault: ## Sync Obsidian vault from Hermes → Homepage server
+	@echo "📚 Syncing vault from Hermes to Homepage server..."
+	ssh $(HERMES_HOST) "rsync -avz --delete \
+		--exclude='.*' \
+		--exclude='*sync-conflict*' \
+		$(HERMES_VAULT) $(HOMEPAGE_HOST):$(HOMEPAGE_VAULT)"
+	@echo "✅ Vault synced!"
+
+sync-vault-restart: sync-vault ## Sync vault + restart the container
+	@echo "🔄 Restarting container..."
+	ssh $(HOMEPAGE_HOST) "cd /var/www/homepage && docker compose restart app"
+	@echo "✅ Done!"
+
+sync-vault-local: ## Sync vault from local machine → Homepage server
+	@echo "📚 Syncing local vault to Homepage server..."
+	rsync -avz --delete \
+		--exclude='.*' \
+		--exclude='*sync-conflict*' \
+		/Users/fernando_idwell/Developer/Vaults/FACorreia/raw/ \
+		$(HOMEPAGE_HOST):$(HOMEPAGE_VAULT)
+	@echo "✅ Vault synced!"
+
+# =========================================================================
 # Help
 # =========================================================================
 
@@ -87,3 +118,4 @@ help: ## Show this help message
 	@echo ""
 	@echo "Targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
