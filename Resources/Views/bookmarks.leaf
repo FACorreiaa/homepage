@@ -43,7 +43,9 @@
           <div class="graph-spinner"></div>
           <p>Initializing neural map...</p>
         </div>
+        <canvas id="bg-particles" class="bg-particles-canvas"></canvas>
         <div id="graph-container" class="graph-canvas-wrap"></div>
+        <div class="scan-line"></div>
         <div id="node-tooltip" class="node-tooltip"></div>
       </div>
     </main>
@@ -52,6 +54,36 @@
       function toggleCategory(btn){const c=btn.closest('.tree-category'),items=c.querySelector('.tree-items'),exp=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',!exp);items.style.display=exp?'none':'block';btn.querySelector('.tree-chevron').style.transform=exp?'rotate(0)':'rotate(90deg)';}
       function toggleSidebar(){document.getElementById('bookmarks-sidebar').classList.toggle('open');}
       document.getElementById('sidebar-filter')?.addEventListener('input',function(e){const q=e.target.value.toLowerCase().trim();document.querySelectorAll('.tree-category').forEach(cat=>{const items=cat.querySelectorAll('.tree-item-link');let v=0;items.forEach(i=>{const m=!q||(i.getAttribute('data-name')||'').toLowerCase().includes(q);i.closest('li').style.display=m?'':'none';if(m)v++;});cat.style.display=v>0||!q?'':'none';if(q&&v>0){const b=cat.querySelector('.tree-category-toggle');b.setAttribute('aria-expanded','true');cat.querySelector('.tree-items').style.display='block';b.querySelector('.tree-chevron').style.transform='rotate(90deg)';}});});
+
+      (function initBgParticles() {
+        const canvas = document.getElementById('bg-particles');
+        if (!canvas) return;
+        const ctx2 = canvas.getContext('2d');
+        const particles = Array.from({length: 80}, () => ({
+          x: Math.random(), y: Math.random(),
+          vx: (Math.random() - 0.5) * 0.00015,
+          vy: (Math.random() - 0.5) * 0.00015,
+          r: Math.random() * 1.2 + 0.3,
+          phase: Math.random() * Math.PI * 2,
+        }));
+        function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+        window.addEventListener('resize', resize); resize();
+        function tick() {
+          ctx2.clearRect(0, 0, canvas.width, canvas.height);
+          const now = Date.now() * 0.001;
+          for (const p of particles) {
+            p.x = (p.x + p.vx + 1) % 1;
+            p.y = (p.y + p.vy + 1) % 1;
+            const alpha = 0.08 + 0.08 * Math.sin(now * 0.5 + p.phase);
+            ctx2.beginPath();
+            ctx2.arc(p.x * canvas.width, p.y * canvas.height, p.r, 0, Math.PI * 2);
+            ctx2.fillStyle = `rgba(0,229,255,${alpha.toFixed(3)})`;
+            ctx2.fill();
+          }
+          requestAnimationFrame(tick);
+        }
+        tick();
+      })();
 
       (function(){
         const container=document.getElementById('graph-container'),loading=document.getElementById('graph-loading'),tooltip=document.getElementById('node-tooltip');
@@ -66,6 +98,8 @@
           document.getElementById('hud-clusters').textContent=data.nodes.filter(n=>n.isHub).length;
 
           data.links.forEach(l=>{const s=typeof l.source==='object'?l.source.id:l.source,t=typeof l.target==='object'?l.target.id:l.target;if(!neighborMap[s])neighborMap[s]=new Set();if(!neighborMap[t])neighborMap[t]=new Set();neighborMap[s].add(t);neighborMap[t].add(s);});
+          const hubs=data.nodes.filter(n=>n.isHub);
+          hubs.forEach((n,i)=>{n._pingOffset=i*(3.0/Math.max(hubs.length,1));});
 
           const graph=ForceGraph()(container).graphData(data).backgroundColor('transparent').nodeLabel('')
             .linkColor(link=>{
@@ -79,11 +113,21 @@
               return(s===hoveredNode.id||t===hoveredNode.id)?1.8:0.1;
             })
             .linkDirectionalParticles(link=>{
-              if(!hoveredNode)return 0;
+              if(!hoveredNode)return 1;
               const s=typeof link.source==='object'?link.source.id:link.source,t=typeof link.target==='object'?link.target.id:link.target;
-              return(s===hoveredNode.id||t===hoveredNode.id)?3:0;
+              return(s===hoveredNode.id||t===hoveredNode.id)?5:1;
             })
-            .linkDirectionalParticleSpeed(0.008).linkDirectionalParticleWidth(1.5).linkDirectionalParticleColor(()=>CYAN)
+            .linkDirectionalParticleSpeed(link=>{
+              if(!hoveredNode)return 0.003;
+              const s=typeof link.source==='object'?link.source.id:link.source,t=typeof link.target==='object'?link.target.id:link.target;
+              return(s===hoveredNode.id||t===hoveredNode.id)?0.01:0.003;
+            })
+            .linkDirectionalParticleWidth(link=>{
+              if(!hoveredNode)return 0.8;
+              const s=typeof link.source==='object'?link.source.id:link.source,t=typeof link.target==='object'?link.target.id:link.target;
+              return(s===hoveredNode.id||t===hoveredNode.id)?2.0:0.8;
+            })
+            .linkDirectionalParticleColor(()=>CYAN)
             .warmupTicks(120).cooldownTicks(300)
             .onNodeClick(node=>{if(!node.isHub)window.location.href='/bookmarks/'+node.id;})
             .onNodeHover(node=>{
@@ -101,20 +145,42 @@
               if(node.isHub){
                 // Hexagon hub
                 const r=Math.max(8,(node.val||3)*1.4);
-                // Outer glow
+                const now=Date.now()*0.001;
+                const pulse=0.5+0.5*Math.sin(now*1.5+(node._pingOffset||0));
+                // Outer glow (pulsing)
+                const glowAlpha=dim?0.03:0.07+0.07*pulse;
                 const grd=ctx.createRadialGradient(node.x,node.y,0,node.x,node.y,r*4);
-                grd.addColorStop(0,DIM_CYAN+(dim?'0.03)':'0.12)'));grd.addColorStop(1,'transparent');
+                grd.addColorStop(0,DIM_CYAN+glowAlpha.toFixed(3)+')');grd.addColorStop(1,'transparent');
                 ctx.beginPath();ctx.arc(node.x,node.y,r*4,0,Math.PI*2);ctx.fillStyle=grd;ctx.fill();
+                // Orbital rings
+                if(!dim){
+                  ctx.save();ctx.translate(node.x,node.y);
+                  ctx.save();ctx.rotate(now*0.4);
+                  ctx.beginPath();ctx.save();ctx.scale(1,0.38);ctx.arc(0,0,r*2.2,0,Math.PI*2);ctx.restore();
+                  ctx.strokeStyle='rgba(0,229,255,0.18)';ctx.lineWidth=0.6/gs;ctx.setLineDash([3/gs,5/gs]);ctx.stroke();ctx.restore();
+                  ctx.save();ctx.rotate(-now*0.25);
+                  ctx.beginPath();ctx.save();ctx.scale(0.38,1);ctx.arc(0,0,r*2.6,0,Math.PI*2);ctx.restore();
+                  ctx.strokeStyle='rgba(0,229,255,0.10)';ctx.lineWidth=0.5/gs;ctx.setLineDash([2/gs,8/gs]);ctx.stroke();ctx.restore();
+                  ctx.setLineDash([]);ctx.restore();
+                }
+                // Radar ping
+                const pingPhase=((now+(node._pingOffset||0))%3.0)/3.0;
+                const pingAlpha=dim?0:(1-pingPhase)*0.35;
+                if(pingAlpha>0.01){
+                  ctx.beginPath();ctx.arc(node.x,node.y,r+r*3.5*pingPhase,0,Math.PI*2);
+                  ctx.strokeStyle=`rgba(0,229,255,${pingAlpha.toFixed(3)})`;
+                  ctx.lineWidth=(1-pingPhase)*1.5/gs;ctx.stroke();
+                }
                 // Hex shape
                 ctx.beginPath();
                 for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;ctx.lineTo(node.x+r*Math.cos(a),node.y+r*Math.sin(a));}
                 ctx.closePath();
                 ctx.fillStyle=dim?DIM_CYAN+'0.05)':DIM_CYAN+'0.15)';ctx.fill();
                 ctx.strokeStyle=dim?DIM_CYAN+'0.1)':CYAN;ctx.lineWidth=dim?0.5/gs:1.2/gs;ctx.stroke();
-                // Inner hex
+                // Inner hex (pulsing fill)
                 const ri=r*0.5;ctx.beginPath();
                 for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;ctx.lineTo(node.x+ri*Math.cos(a),node.y+ri*Math.sin(a));}
-                ctx.closePath();ctx.fillStyle=dim?DIM_CYAN+'0.08)':CYAN;ctx.fill();
+                ctx.closePath();ctx.fillStyle=dim?DIM_CYAN+'0.08)':`rgba(0,229,255,${(0.7+0.3*pulse).toFixed(3)})`;ctx.fill();
                 // Label
                 const fs=Math.max(10,13/gs);ctx.font='700 '+fs+'px Sora,monospace';ctx.textAlign='center';ctx.textBaseline='middle';
                 ctx.fillStyle=dim?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.85)';
