@@ -1,0 +1,107 @@
+#extend("base"):
+  #export("body"):
+    <main class="min-h-screen relative overflow-hidden flex flex-col pt-20">
+      <!-- Overlay UI -->
+      <div class="relative z-10 px-8 py-4 pointer-events-none select-none">
+        <div data-reveal="left" class="revealed">
+          <h1 class="text-4xl md:text-5xl font-bold text-foreground mb-2">Knowledge Graph</h1>
+          <p class="text-muted-foreground text-lg">Interactive digital garden of bookmarks and research notes.</p>
+        </div>
+      </div>
+      
+      <!-- Graph Container -->
+      <div id="graph-container" class="flex-grow z-0 cursor-move"></div>
+      
+      <script src="https://unpkg.com/force-graph"></script>
+      <script>
+        (function() {
+          const container = document.getElementById('graph-container');
+          if (!container) return;
+
+          function getTheme() {
+            return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+          }
+
+          const isDark = getTheme() === 'dark';
+          
+          // Obsidian-like colors
+          const colors = {
+              dark: {
+                  node: '#818cf8',
+                  link: 'rgba(255, 255, 255, 0.08)',
+                  text: 'rgba(255, 255, 255, 0.6)',
+                  particle: '#a5b4fc'
+              },
+              light: {
+                  node: '#4f46e5',
+                  link: 'rgba(0, 0, 0, 0.05)',
+                  text: 'rgba(0, 0, 0, 0.5)',
+                  particle: '#6366f1'
+              }
+          };
+
+          const activeColors = isDark ? colors.dark : colors.light;
+
+          const graph = ForceGraph()(container)
+            .jsonUrl('/api/graph')
+            .backgroundColor('transparent')
+            .nodeLabel('name')
+            .nodeColor(node => activeColors.node)
+            .linkColor(link => activeColors.link)
+            .linkDirectionalParticles(2)
+            .linkDirectionalParticleSpeed(0.005)
+            .linkDirectionalParticleWidth(1)
+            .onNodeClick(node => {
+              window.location.href = `/bookmarks/${node.id}`;
+            })
+            .nodeCanvasObject((node, ctx, globalScale) => {
+              const label = node.name;
+              const fontSize = 12 / globalScale;
+              ctx.font = `${fontSize}px Sora, sans-serif`;
+              
+              // Draw node circle
+              const r = 4 / globalScale;
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+              ctx.fillStyle = activeColors.node;
+              ctx.fill();
+              
+              // Glow effect
+              if (getTheme() === 'dark') {
+                  ctx.shadowColor = activeColors.node;
+                  ctx.shadowBlur = 10 / globalScale;
+              }
+
+              // Draw label if zoomed in enough
+              if (globalScale > 1.2) {
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'middle';
+                  ctx.fillStyle = activeColors.text;
+                  ctx.fillText(label, node.x, node.y + 8 / globalScale);
+              }
+              
+              ctx.shadowBlur = 0; // reset
+            });
+
+          // Handle Resize
+          const resize = () => {
+            graph.width(container.offsetWidth);
+            graph.height(container.offsetHeight);
+          };
+          window.addEventListener('resize', resize);
+          resize();
+          
+          // Force layout stabilization
+          graph.d3Force('charge').strength(-150);
+          graph.d3Force('link').distance(50);
+        })();
+      </script>
+
+      <style>
+        #graph-container canvas {
+          display: block;
+        }
+      </style>
+    </main>
+  #endexport
+#endextend
