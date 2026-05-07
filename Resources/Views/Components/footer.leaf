@@ -31,6 +31,7 @@
           <a href="/curriculum" class="block text-muted-foreground hover:text-primary transition-colors text-sm">Curriculum</a>
           <a href="/stack" class="block text-muted-foreground hover:text-primary transition-colors text-sm">Tech Stack</a>
           <a href="/blog" class="block text-muted-foreground hover:text-primary transition-colors text-sm">Blog</a>
+          <a href="/bookmarks" class="block text-muted-foreground hover:text-primary transition-colors text-sm">Bookmarks</a>
         </nav>
       </div>
 

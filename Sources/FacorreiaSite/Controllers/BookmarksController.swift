@@ -10,8 +10,8 @@ struct BookmarksController: RouteCollection {
         routes.get("api", "graph", use: graphData)
     }
     
-    private var vaultPath: String {
-        return "Public/vault/wiki/"
+    private func vaultPath(for req: Request) -> String {
+        return req.application.directory.publicDirectory + "vault/wiki/"
     }
 
     @Sendable
@@ -30,13 +30,15 @@ struct BookmarksController: RouteCollection {
             throw Abort(.badRequest)
         }
         
+        let path = vaultPath(for: req)
+        
         // Find file by slug (case insensitive match if possible, or just exact match)
-        let files = try FileManager.default.contentsOfDirectory(atPath: vaultPath)
+        let files = try FileManager.default.contentsOfDirectory(atPath: path)
         guard let fileName = files.first(where: { $0.lowercased().replacingOccurrences(of: " ", with: "-") == slug.lowercased() + ".md" }) else {
             throw Abort(.notFound)
         }
         
-        let filePath = vaultPath + fileName
+        let filePath = path + fileName
         guard let content = try? String(contentsOfFile: filePath, encoding: .utf8) else {
             throw Abort(.notFound)
         }
@@ -91,7 +93,8 @@ struct BookmarksController: RouteCollection {
 
     @Sendable
     func graphData(req: Request) async throws -> GraphData {
-        let files = try FileManager.default.contentsOfDirectory(atPath: vaultPath)
+        let path = vaultPath(for: req)
+        let files = try FileManager.default.contentsOfDirectory(atPath: path)
         var nodes: [GraphNode] = []
         var links: [GraphLink] = []
         var nodeIds = Set<String>()
@@ -105,7 +108,7 @@ struct BookmarksController: RouteCollection {
         
         for file in files where file.hasSuffix(".md") {
             let sourceId = file.replacingOccurrences(of: ".md", with: "").lowercased().replacingOccurrences(of: " ", with: "-")
-            let content = try String(contentsOfFile: vaultPath + file, encoding: .utf8)
+            let content = try String(contentsOfFile: path + file, encoding: .utf8)
             
             let regex = try NSRegularExpression(pattern: "\\[\\[([^\\]|]+)(?:\\|([^\\]]+))?\\]\\]", options: [])
             let range = NSRange(content.startIndex..<content.endIndex, in: content)

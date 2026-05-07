@@ -10,7 +10,7 @@
       </div>
       
       <!-- Graph Container -->
-      <div id="graph-container" class="flex-grow z-0 cursor-move"></div>
+      <div id="graph-container" class="flex-grow z-0 cursor-move" style="min-height: 70vh;"></div>
       
       <script src="https://unpkg.com/force-graph"></script>
       <script>
@@ -22,25 +22,25 @@
             return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
           }
 
-          const isDark = getTheme() === 'dark';
+          let isDark = getTheme() === 'dark';
           
           // Obsidian-like colors
           const colors = {
               dark: {
                   node: '#818cf8',
-                  link: 'rgba(255, 255, 255, 0.08)',
-                  text: 'rgba(255, 255, 255, 0.6)',
+                  link: 'rgba(255, 255, 255, 0.1)',
+                  text: 'rgba(255, 255, 255, 0.7)',
                   particle: '#a5b4fc'
               },
               light: {
                   node: '#4f46e5',
-                  link: 'rgba(0, 0, 0, 0.05)',
-                  text: 'rgba(0, 0, 0, 0.5)',
+                  link: 'rgba(0, 0, 0, 0.08)',
+                  text: 'rgba(0, 0, 0, 0.6)',
                   particle: '#6366f1'
               }
           };
 
-          const activeColors = isDark ? colors.dark : colors.light;
+          let activeColors = isDark ? colors.dark : colors.light;
 
           const graph = ForceGraph()(container)
             .jsonUrl('/api/graph')
@@ -77,7 +77,7 @@
                   ctx.textAlign = 'center';
                   ctx.textBaseline = 'middle';
                   ctx.fillStyle = activeColors.text;
-                  ctx.fillText(label, node.x, node.y + 8 / globalScale);
+                  ctx.fillText(label, node.x, node.y + 10 / globalScale);
               }
               
               ctx.shadowBlur = 0; // reset
@@ -85,11 +85,27 @@
 
           // Handle Resize
           const resize = () => {
-            graph.width(container.offsetWidth);
-            graph.height(container.offsetHeight);
+            const w = container.offsetWidth;
+            const h = container.offsetHeight || (window.innerHeight - 200);
+            graph.width(w);
+            graph.height(h);
           };
           window.addEventListener('resize', resize);
-          resize();
+          
+          // Observer for theme changes
+          const observer = new MutationObserver(() => {
+              const newDark = getTheme() === 'dark';
+              if (newDark !== isDark) {
+                  isDark = newDark;
+                  activeColors = isDark ? colors.dark : colors.light;
+                  graph.nodeColor(node => activeColors.node)
+                       .linkColor(link => activeColors.link);
+              }
+          });
+          observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+          // Initial load
+          setTimeout(resize, 100);
           
           // Force layout stabilization
           graph.d3Force('charge').strength(-150);

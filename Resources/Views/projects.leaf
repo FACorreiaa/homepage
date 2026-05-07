@@ -23,8 +23,11 @@
               </p>
               <div class="flex flex-wrap gap-3 justify-center animate-fade-in-up delay-500">
                 <a href="/book-call" class="btn btn-primary btn-glow btn-attention">Book a Call</a>
+                <a href="/bookmarks" class="btn btn-outline">
+                   <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-primary"><path d="M12 2v8"></path><path d="m16 6-4 4-4-4"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                   Knowledge Graph
+                </a>
                 <a href="/proposal" class="btn btn-outline">Request Proposal</a>
-                <a href="#projects" class="btn btn-outline">App Showcase ↓</a>
               </div>
             </div>
           </div>
