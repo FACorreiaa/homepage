@@ -18,7 +18,11 @@ jobs:
           script: |
             set -e
             cd /var/www/homepage
+
             git pull origin main
+
+            # Ensure vault mount directory exists (even if empty)
+            mkdir -p vault/raw
 
             # Rebuild and restart
             docker compose up -d --build --remove-orphans

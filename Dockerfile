@@ -66,6 +66,9 @@ RUN cp "/usr/libexec/swift/linux/swift-backtrace-static" ./
 RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
 RUN [ -d /build/Resources ] && { mv /build/Resources ./Resources && chmod -R a-w ./Resources; } || true
 
+# Create vault mount point for Obsidian notes (bind-mounted at runtime)
+RUN mkdir -p ./Public/vault/raw
+
 # ================================
 # Run image
 # ================================
