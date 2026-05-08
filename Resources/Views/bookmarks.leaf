@@ -198,9 +198,12 @@
               }else{
                 // File node — small dot with glow
                 const r=Math.max(1.8,3/gs);
+                const twinklePhase=(Date.now()*0.0007+(node.id.charCodeAt(0)||0)*0.3)%(Math.PI*2);
+                const twinkle=0.5+0.5*Math.sin(twinklePhase);
+                const baseAlpha=dim?0.08:hl?1.0:0.45+0.25*twinkle;
                 if(!dim){ctx.shadowColor=CYAN;ctx.shadowBlur=hl?18/gs:6/gs;}
                 ctx.beginPath();ctx.arc(node.x,node.y,r,0,Math.PI*2);
-                ctx.fillStyle=dim?DIM_CYAN+'0.08)':hl?CYAN:DIM_CYAN+'0.6)';ctx.fill();ctx.shadowBlur=0;
+                ctx.fillStyle=dim?DIM_CYAN+'0.08)':hl?CYAN:`rgba(0,229,255,${baseAlpha.toFixed(3)})`;ctx.fill();ctx.shadowBlur=0;
                 // Ring on highlight
                 if(hl&&hoveredNode){ctx.strokeStyle=DIM_CYAN+'0.5)';ctx.lineWidth=0.5/gs;ctx.beginPath();ctx.arc(node.x,node.y,r*2.5,0,Math.PI*2);ctx.stroke();}
                 // Label
@@ -226,7 +229,8 @@
 
       /* === HUD Frame === */
       .hud-frame{position:absolute;inset:12px;pointer-events:none;z-index:4;}
-      .hud-corner{position:absolute;width:28px;height:28px;border-color:rgba(0,229,255,0.25);border-style:solid;}
+      .hud-corner{position:absolute;width:32px;height:32px;border-color:rgba(0,229,255,0.3);border-style:solid;animation:hudpulse 4s ease-in-out infinite;}
+      @keyframes hudpulse{0%,100%{border-color:rgba(0,229,255,0.22);}50%{border-color:rgba(0,229,255,0.58);box-shadow:0 0 10px rgba(0,229,255,0.22);}}
       .hud-tl{top:0;left:0;border-width:1px 0 0 1px;}.hud-tr{top:0;right:0;border-width:1px 1px 0 0;}
       .hud-bl{bottom:0;left:0;border-width:0 0 1px 1px;}.hud-br{bottom:0;right:0;border-width:0 1px 1px 0;}
       .hud-label-top{position:absolute;top:4px;left:50%;transform:translateX(-50%);font:600 0.55rem/1 'Sora',monospace;color:rgba(0,229,255,0.3);letter-spacing:0.15em;text-transform:uppercase;}
@@ -254,10 +258,13 @@
 
       /* === Main === */
       .bookmarks-main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;
-        background:radial-gradient(ellipse at 50% 50%,rgba(0,229,255,0.02) 0%,transparent 60%),
-        repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(0,229,255,0.02) 59px,rgba(0,229,255,0.02) 60px),
-        repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(0,229,255,0.02) 59px,rgba(0,229,255,0.02) 60px),
-        #060a10;}
+        background:
+          radial-gradient(ellipse 60% 40% at 30% 60%,rgba(0,229,255,0.025) 0%,transparent 70%),
+          radial-gradient(ellipse 50% 35% at 75% 30%,rgba(100,60,255,0.018) 0%,transparent 65%),
+          radial-gradient(ellipse 40% 50% at 60% 80%,rgba(0,200,255,0.015) 0%,transparent 60%),
+          repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(0,229,255,0.018) 59px,rgba(0,229,255,0.018) 60px),
+          repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(0,229,255,0.018) 59px,rgba(0,229,255,0.018) 60px),
+          #060a10;}
       .bookmarks-header{position:absolute;top:0;left:0;right:0;padding:1.2rem 1.8rem;z-index:5;pointer-events:none;}
       .bookmarks-header h1{font:700 1.3rem/1 'Sora',sans-serif;color:rgba(255,255,255,0.8);margin:0;letter-spacing:-.01em;}
       .bookmarks-header p{font:.7rem/1 'Sora',monospace;color:rgba(0,229,255,0.25);margin:.4rem 0 0;}
@@ -265,7 +272,7 @@
       .graph-loading-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(0,229,255,0.35);font:.8rem 'Sora',monospace;}
       .bg-particles-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;}
       .graph-canvas-wrap{flex:1;display:none;cursor:default;min-height:0;position:relative;z-index:1;}
-      .scan-line{position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent 0%,rgba(0,229,255,0.08) 20%,rgba(0,229,255,0.18) 50%,rgba(0,229,255,0.08) 80%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 10s linear infinite;box-shadow:0 0 8px rgba(0,229,255,0.12),0 0 20px rgba(0,229,255,0.05);}
+      .scan-line{position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent 0%,rgba(0,229,255,0.04) 15%,rgba(0,229,255,0.22) 50%,rgba(0,229,255,0.04) 85%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 12s linear infinite;box-shadow:0 0 12px rgba(0,229,255,0.15),0 0 30px rgba(0,229,255,0.06),0 2px 4px rgba(0,229,255,0.08);}
       @keyframes scanline{0%{transform:translateY(0);opacity:0;}3%{opacity:1;}97%{opacity:1;}100%{transform:translateY(100vh);opacity:0;}}
       #graph-container canvas{display:block;}
       .graph-spinner{width:32px;height:32px;border:1.5px solid rgba(0,229,255,0.12);border-top-color:#00e5ff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:.8rem;}
