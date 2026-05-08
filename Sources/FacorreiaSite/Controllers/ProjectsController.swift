@@ -20,7 +20,7 @@ struct ProjectsController: RouteCollection {
             ],
             projects: [
                 ProjectItem(
-                    title: "StockPlan",
+                    title: "Norviq",
                     description:
                         "A personal stock portfolio tracker backend and SwiftUI mobile app designed for active investors. Build and maintain due diligence notes, define base/bear/bull scenarios, and follow performance across your watchlist in one place.\n\nConnect your brokers, sync data across iOS and macOS clients securely via JWT, and deploy on budget VPS instances using Docker, Postgres, and Redis.",
                     tags: ["Vapor (Swift)", "SwiftUI", "Docker", "PostgreSQL", "Redis", "Hetzner VPS"],
@@ -32,6 +32,47 @@ struct ProjectsController: RouteCollection {
                     icon: "📈",
                     iconUrl:
                         "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
+                ),
+                ProjectItem(
+                    title: "Hermes",
+                    description:
+                        "A private gateway and automation hub hosted on a VPS. Hermes acts as a central coordinator for multiple platforms, enabling seamless communication between various AI models, webhooks, and personal services while maintaining strict privacy and data sovereignty.",
+                    tags: ["Docker", "VPS", "Gateway", "Swift", "API"],
+                    category: "Backend API",
+                    githubLink: "Private",
+                    liveLink: "",
+                    hasLiveLink: false,
+                    featured: true,
+                    icon: "🤖",
+                    iconUrl: nil
+                ),
+                ProjectItem(
+                    title: "HermesVault Backend",
+                    description:
+                        "The secure, self-hosted backend for HermesVault — your private Obsidian + AI second brain. Built with Hummingbird 2, it features a robust 'kb-compile' engine that transforms raw Markdown inputs into a structured, queryable knowledge base with semantic search powered by pgvector.",
+                    tags: ["Swift 6", "Hummingbird 2", "Postgres", "pgvector", "Docker"],
+                    category: "Backend API",
+                    githubLink: "Private",
+                    liveLink: "",
+                    hasLiveLink: false,
+                    featured: true,
+                    icon: "⚙️",
+                    iconUrl:
+                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
+                ),
+                ProjectItem(
+                    title: "HermesVault Client",
+                    description:
+                        "A native iOS application providing a first-class mobile experience for your self-hosted memory layer. Featuring deep system integration, Vision-based OCR for screenshots, and native capture of photos, notes, and HealthKit data, it brings your second brain to your pocket with native polish.",
+                    tags: ["SwiftUI", "SwiftData", "Vision OCR", "AVFoundation"],
+                    category: "iOS App",
+                    githubLink: "Private",
+                    liveLink: "",
+                    hasLiveLink: false,
+                    featured: true,
+                    icon: "📱",
+                    iconUrl:
+                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apple/apple-original.svg"
                 ),
                 ProjectItem(
                     title: "FanAPI",
