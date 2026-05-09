@@ -2,9 +2,9 @@ import Vapor
 
 struct ProjectsController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        // Serve the projects page at both / and /projects
         routes.get(use: index)
         routes.get("projects", use: index)
+        routes.get("projects", ":slug", use: detail)
     }
 
     @Sendable
@@ -12,181 +12,298 @@ struct ProjectsController: RouteCollection {
         let context = ProjectsContext(
             title: "Projects | FC Software Studio",
             activePage: "projects",
-            trustItems: [
-                TrustItem(icon: "🌍", value: "4+", label: "Countries"),
-                TrustItem(icon: "🚀", value: "15+", label: "Projects Delivered"),
-                TrustItem(icon: "⚡", value: "7+", label: "Years Experience"),
-                TrustItem(icon: "🛡️", value: "10+", label: "Technologies"),
-            ],
-            projects: [
-                ProjectItem(
-                    title: "Norviq",
-                    description:
-                        "A personal stock portfolio tracker backend and SwiftUI mobile app designed for active investors. Build and maintain due diligence notes, define base/bear/bull scenarios, and follow performance across your watchlist in one place.\n\nConnect your brokers, sync data across iOS and macOS clients securely via JWT, and deploy on budget VPS instances using Docker, Postgres, and Redis.",
-                    tags: ["Vapor (Swift)", "SwiftUI", "Docker", "PostgreSQL", "Redis", "Hetzner VPS"],
-                    category: "Full Stack / iOS App",
-                    githubLink: "Private",
-                    liveLink: "https://apps.apple.com/",
-                    hasLiveLink: true,
-                    featured: true,
-                    icon: "📈",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
-                ),
-                ProjectItem(
-                    title: "Hermes",
-                    description:
-                        "A private gateway and automation hub hosted on a VPS. Hermes acts as a central coordinator for multiple platforms, enabling seamless communication between various AI models, webhooks, and personal services while maintaining strict privacy and data sovereignty.",
-                    tags: ["Docker", "VPS", "Gateway", "Swift", "API"],
-                    category: "Backend API",
-                    githubLink: "Private",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: true,
-                    icon: "🤖",
-                    iconUrl: nil
-                ),
-                ProjectItem(
-                    title: "HermesVault Backend",
-                    description:
-                        "The secure, self-hosted backend for HermesVault — your private Obsidian + AI second brain. Built with Hummingbird 2, it features a robust 'kb-compile' engine that transforms raw Markdown inputs into a structured, queryable knowledge base with semantic search powered by pgvector.",
-                    tags: ["Swift 6", "Hummingbird 2", "Postgres", "pgvector", "Docker"],
-                    category: "Backend API",
-                    githubLink: "Private",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: true,
-                    icon: "⚙️",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg"
-                ),
-                ProjectItem(
-                    title: "HermesVault Client",
-                    description:
-                        "A native iOS application providing a first-class mobile experience for your self-hosted memory layer. Featuring deep system integration, Vision-based OCR for screenshots, and native capture of photos, notes, and HealthKit data, it brings your second brain to your pocket with native polish.",
-                    tags: ["SwiftUI", "SwiftData", "Vision OCR", "AVFoundation"],
-                    category: "iOS App",
-                    githubLink: "Private",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: true,
-                    icon: "📱",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apple/apple-original.svg"
-                ),
-                ProjectItem(
-                    title: "FanAPI",
-                    description:
-                        "A RESTful API for Fandemic built with Go, featuring JWT-based authentication, real-time group chat via WebSockets, profile and contacts management, and interactive OpenAPI documentation with Scalar.",
-                    tags: ["Go", "REST API", "WebSocket", "JWT", "PostgreSQL"],
-                    category: "Backend API",
-                    githubLink: "Private",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: true,
-                    icon: "⚙️",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
-                ),
-                ProjectItem(
-                    title: "Pamozi CRM",
-                    description:
-                        "Pamozi provides dedicated used glasses for communities in need and that cannot afford them. To help with logistics, a Platform was built so they can manage data, users and stock management.",
-                    tags: ["Go", "Server Side Rendering", "Templ", "HTMX", "PostgreSQL"],
-                    category: "Backend API",
-                    githubLink: "https://github.com/FACorreiaa/glasses-management-platform",
-                    liveLink: "https://pamozi.de",
-                    hasLiveLink: true ,
-                    featured: true,
-                    icon: "⚙️",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg"
-                ),
-                ProjectItem(
-                    title: "iOS E-Commerce App",
-                    description:
-                        "A native iOS e-commerce application built with Swift and SwiftUI, featuring Apple Pay integration and smooth animations.",
-                    tags: ["Swift", "SwiftUI", "CoreData", "Combine"],
-                    category: "iOS App",
-                    githubLink: "https://github.com/FACorreiaa",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: true,
-                    icon: "📱",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apple/apple-original.svg"
-                ),
-                ProjectItem(
-                    title: "Android Fitness Tracker",
-                    description:
-                        "Native Android application for tracking daily workouts, integrations with health APIs, built purely with Kotlin and Jetpack Compose.",
-                    tags: ["Kotlin", "Jetpack Compose", "Android SDK"],
-                    category: "Android App",
-                    githubLink: "https://github.com/FACorreiaa",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: true,
-                    icon: "🤖",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/android/android-original.svg"
-                ),
-                ProjectItem(
-                    title: "Web Dashboard MVP",
-                    description:
-                        "Responsive, high-performance web dashboard with real-time analytics tailored for enterprise business needs.",
-                    tags: ["React", "TypeScript", "Tailwind CSS"],
-                    category: "Web App",
-                    githubLink: "https://github.com/FACorreiaa",
-                    liveLink: "https://facorreia.com",
-                    hasLiveLink: true,
-                    featured: true,
-                    icon: "💻",
-                    iconUrl:
-                        "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
-                ),
-                ProjectItem(
-                    title: "Financial Services Platform",
-                    description:
-                        "Modular web services for finance sector with Go, Postgres, MSSQL, and GraphQL. Built scalable APIs for financial data processing.",
-                    tags: ["Go", "GraphQL", "Postgres", "MSSQL"],
-                    category: "Backend",
-                    githubLink: "https://github.com/FACorreiaa",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: false,
-                    icon: "⚙️",
-                    iconUrl: nil
-                ),
-                ProjectItem(
-                    title: "Network Tracking App",
-                    description:
-                        "Web version of mobile network tracking application using React and Rust with real-time telemetry integration.",
-                    tags: ["React", "Rust", "gRPC", "OTLP"],
-                    category: "Full Stack",
-                    githubLink: "https://github.com/FACorreiaa",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: false,
-                    icon: "📡",
-                    iconUrl: nil
-                ),
-                ProjectItem(
-                    title: "Social Learning Platform",
-                    description:
-                        "Cross-platform mobile and web app with React Native and TypeScript. Full backoffice configuration capabilities.",
-                    tags: ["React Native", "TypeScript", "Go"],
-                    category: "Mobile",
-                    githubLink: "https://github.com/FACorreiaa",
-                    liveLink: "",
-                    hasLiveLink: false,
-                    featured: false,
-                    icon: "📱",
-                    iconUrl: nil
-                ),
-            ]
+            trustItems: Self.trustItems,
+            projects: Self.allProjects
         )
-
         return try await req.view.render("projects", context)
+    }
+
+    @Sendable
+    func detail(req: Request) async throws -> View {
+        guard let slug = req.parameters.get("slug"),
+              let project = Self.allProjects.first(where: { $0.slug == slug })
+        else {
+            throw Abort(.notFound)
+        }
+
+        let detailContext = Self.detailContext(for: project)
+        return try await req.view.render("project-detail", detailContext)
+    }
+
+    // MARK: - Static data
+
+    static let trustItems: [TrustItem] = [
+        TrustItem(icon: "🌍", value: "4+", label: "Countries"),
+        TrustItem(icon: "🚀", value: "15+", label: "Projects Delivered"),
+        TrustItem(icon: "⚡", value: "7+", label: "Years Experience"),
+        TrustItem(icon: "🛡️", value: "10+", label: "Technologies"),
+    ]
+
+    static let allProjects: [ProjectItem] = [
+        ProjectItem(
+            slug: "norviq",
+            title: "Norviq",
+            roleTag: "Independent",
+            description:
+                "A focused investing workspace for portfolios, watchlists, targets, and market context. Build and maintain due diligence notes, define base/bear/bull scenarios, and follow performance across your watchlist in one place.",
+            tags: ["Vapor (Swift)", "SwiftUI", "Docker", "PostgreSQL", "Redis", "Hetzner VPS"],
+            category: "Full Stack / iOS App",
+            githubLink: "Private",
+            liveLink: "https://apps.apple.com/",
+            hasLiveLink: true,
+            featured: true,
+            icon: "📈",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg",
+            logoAsset: "/static/projects/norviq-icon.png"
+        ),
+        ProjectItem(
+            slug: "hermes",
+            title: "Hermes",
+            roleTag: "Independent",
+            description:
+                "A private gateway and automation hub hosted on a VPS. Hermes acts as a central coordinator for multiple platforms, enabling seamless communication between various AI models, webhooks, and personal services while maintaining strict privacy and data sovereignty.",
+            tags: ["Docker", "VPS", "Gateway", "Swift", "API"],
+            category: "Backend API",
+            githubLink: "Private",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "🤖",
+            iconUrl: nil,
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "hermesvault-backend",
+            title: "HermesVault Backend",
+            roleTag: "Independent",
+            description:
+                "The secure, self-hosted backend for HermesVault — your private Obsidian + AI second brain. Built with Hummingbird 2, it features a robust 'kb-compile' engine that transforms raw Markdown inputs into a structured, queryable knowledge base with semantic search powered by pgvector.",
+            tags: ["Swift 6", "Hummingbird 2", "Postgres", "pgvector", "Docker"],
+            category: "Backend API",
+            githubLink: "Private",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "⚙️",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg",
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "hermesvault-client",
+            title: "HermesVault Client",
+            roleTag: "Independent",
+            description:
+                "A native iOS application providing a first-class mobile experience for your self-hosted memory layer. Featuring deep system integration, Vision-based OCR for screenshots, and native capture of photos, notes, and HealthKit data, it brings your second brain to your pocket with native polish.",
+            tags: ["SwiftUI", "SwiftData", "Vision OCR", "AVFoundation"],
+            category: "iOS App",
+            githubLink: "Private",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "📱",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apple/apple-original.svg",
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "hermes-integrations",
+            title: "Hermes Integrations",
+            roleTag: "Independent",
+            description:
+                "A suite of messaging integrations for the Hermes gateway. These services enable real-time interaction with your private AI assistant via Discord, Slack, and Telegram, allowing for remote command execution, status updates, and instant knowledge capture from your most-used communication platforms.",
+            tags: ["Swift", "Discord API", "Slack API", "Telegram Bot API", "Webhooks"],
+            category: "Integrations / Services",
+            githubLink: "Private",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "🔌",
+            iconUrl: nil,
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "fanapi",
+            title: "FanAPI",
+            roleTag: "Client Work",
+            description:
+                "A RESTful API for Fandemic built with Go, featuring JWT-based authentication, real-time group chat via WebSockets, profile and contacts management, and interactive OpenAPI documentation with Scalar.",
+            tags: ["Go", "REST API", "WebSocket", "JWT", "PostgreSQL"],
+            category: "Backend API",
+            githubLink: "Private",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "⚙️",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg",
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "pamozi-crm",
+            title: "Pamozi CRM",
+            roleTag: "Client Work",
+            description:
+                "Pamozi provides dedicated used glasses for communities in need and that cannot afford them. To help with logistics, a Platform was built so they can manage data, users and stock management.",
+            tags: ["Go", "Server Side Rendering", "Templ", "HTMX", "PostgreSQL"],
+            category: "Backend API",
+            githubLink: "https://github.com/FACorreiaa/glasses-management-platform",
+            liveLink: "https://pamozi.de",
+            hasLiveLink: true,
+            featured: true,
+            icon: "⚙️",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original.svg",
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "ios-ecommerce",
+            title: "iOS E-Commerce App",
+            roleTag: "Client Work",
+            description:
+                "A native iOS e-commerce application built with Swift and SwiftUI, featuring Apple Pay integration and smooth animations.",
+            tags: ["Swift", "SwiftUI", "CoreData", "Combine"],
+            category: "iOS App",
+            githubLink: "https://github.com/FACorreiaa",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "📱",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apple/apple-original.svg",
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "android-fitness-tracker",
+            title: "Android Fitness Tracker",
+            roleTag: "Client Work",
+            description:
+                "Native Android application for tracking daily workouts, integrations with health APIs, built purely with Kotlin and Jetpack Compose.",
+            tags: ["Kotlin", "Jetpack Compose", "Android SDK"],
+            category: "Android App",
+            githubLink: "https://github.com/FACorreiaa",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "🤖",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/android/android-original.svg",
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "web-dashboard-mvp",
+            title: "Web Dashboard MVP",
+            roleTag: "Client Work",
+            description:
+                "Responsive, high-performance web dashboard with real-time analytics tailored for enterprise business needs.",
+            tags: ["React", "TypeScript", "Tailwind CSS"],
+            category: "Web App",
+            githubLink: "https://github.com/FACorreiaa",
+            liveLink: "https://facorreia.com",
+            hasLiveLink: true,
+            featured: true,
+            icon: "💻",
+            iconUrl: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "financial-services-platform",
+            title: "Financial Services Platform",
+            roleTag: "Client Work",
+            description:
+                "Modular web services for finance sector with Go, Postgres, MSSQL, and GraphQL. Built scalable APIs for financial data processing.",
+            tags: ["Go", "GraphQL", "Postgres", "MSSQL"],
+            category: "Backend",
+            githubLink: "https://github.com/FACorreiaa",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: false,
+            icon: "⚙️",
+            iconUrl: nil,
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "network-tracking-app",
+            title: "Network Tracking App",
+            roleTag: "Client Work",
+            description:
+                "Web version of mobile network tracking application using React and Rust with real-time telemetry integration.",
+            tags: ["React", "Rust", "gRPC", "OTLP"],
+            category: "Full Stack",
+            githubLink: "https://github.com/FACorreiaa",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: false,
+            icon: "📡",
+            iconUrl: nil,
+            logoAsset: nil
+        ),
+        ProjectItem(
+            slug: "social-learning-platform",
+            title: "Social Learning Platform",
+            roleTag: "Client Work",
+            description:
+                "Cross-platform mobile and web app with React Native and TypeScript. Full backoffice configuration capabilities.",
+            tags: ["React Native", "TypeScript", "Go"],
+            category: "Mobile",
+            githubLink: "https://github.com/FACorreiaa",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: false,
+            icon: "📱",
+            iconUrl: nil,
+            logoAsset: nil
+        ),
+    ]
+
+    // MARK: - Detail context builder
+
+    static func detailContext(for project: ProjectItem) -> ProjectDetailContext {
+        switch project.slug {
+        case "norviq":
+            return ProjectDetailContext(
+                title: "\(project.title) | FC Software Studio",
+                activePage: "projects",
+                project: project,
+                tagline: "A focused investing workspace for portfolios, watchlists, targets, and market context.",
+                longDescription: [
+                    "Norviq is a personal investing workspace for active investors who want their research, holdings, and decisions in one calm, fast app. Track portfolio performance with cost-basis accuracy, capture due-diligence notes alongside watchlists, and define base / bear / bull scenarios for the names you care about.",
+                    "The iOS client is built natively in SwiftUI with Swift Charts, secured by MFA, Face ID, and an app-lock layer. It talks to a Vapor-powered backend hosted on a budget Hetzner VPS using Postgres and Redis, with broker import options (CSV today, native API integrations soon).",
+                ],
+                features: [
+                    DetailFeature(title: "Portfolio clarity", body: "Track holdings, cost basis, and allocation in real time with cost-basis donut charts."),
+                    DetailFeature(title: "Research workspace", body: "Watchlists, stock insights, valuation editor, projections, and notes — close to every decision."),
+                    DetailFeature(title: "Earnings & news", body: "Built-in earnings calendar and market news feed so context is one tap away."),
+                    DetailFeature(title: "Budget & expenses", body: "A side workspace for budget planning, expense comparison, and reporting (Pro)."),
+                    DetailFeature(title: "Security first", body: "MFA, Face ID, app-lock with security code, encrypted token storage."),
+                    DetailFeature(title: "Native polish", body: "Pure SwiftUI on iOS 16+, Swift Charts visuals, RevenueCat-powered Pro tier."),
+                ],
+                techStack: ["SwiftUI", "Swift Charts", "Vapor", "PostgreSQL", "Redis", "Docker", "RevenueCat", "Factory DI", "PostHog", "Sentry"],
+                socialLinks: [
+                    DetailLink(label: "Instagram", url: "https://instagram.com/norviqplan"),
+                    DetailLink(label: "X (Twitter)", url: "https://x.com/NorviqPlanner"),
+                    DetailLink(label: "Discord", url: "https://discord.gg/3QVkas3rH"),
+                ],
+                hasFeatures: true,
+                hasTechStack: true,
+                hasSocialLinks: true,
+                appStoreUrl: nil,           // TODO: paste App Store URL here when ready
+                hasAppStoreUrl: false,
+                backendNote: "Powered by api.norviqa.io"
+            )
+
+        default:
+            return ProjectDetailContext(
+                title: "\(project.title) | FC Software Studio",
+                activePage: "projects",
+                project: project,
+                tagline: project.category,
+                longDescription: [project.description],
+                features: [],
+                techStack: project.tags,
+                socialLinks: [],
+                hasFeatures: false,
+                hasTechStack: !project.tags.isEmpty,
+                hasSocialLinks: false,
+                appStoreUrl: nil,
+                hasAppStoreUrl: false,
+                backendNote: nil
+            )
+        }
     }
 }
 
@@ -206,14 +323,44 @@ struct TrustItem: Content {
 }
 
 struct ProjectItem: Content {
+    let slug: String
     let title: String
+    let roleTag: String
     let description: String
     let tags: [String]
     let category: String
     let githubLink: String
     let liveLink: String
-    let hasLiveLink: Bool  // Used for `#if(hasLiveLink)` in Leaf
+    let hasLiveLink: Bool
     let featured: Bool
-    let icon: String  // Fallback emoji icon
-    let iconUrl: String?  // Devicon SVG url
+    let icon: String
+    let iconUrl: String?
+    let logoAsset: String?
+}
+
+struct DetailFeature: Content {
+    let title: String
+    let body: String
+}
+
+struct DetailLink: Content {
+    let label: String
+    let url: String
+}
+
+struct ProjectDetailContext: Content {
+    let title: String
+    let activePage: String
+    let project: ProjectItem
+    let tagline: String
+    let longDescription: [String]
+    let features: [DetailFeature]
+    let techStack: [String]
+    let socialLinks: [DetailLink]
+    let hasFeatures: Bool
+    let hasTechStack: Bool
+    let hasSocialLinks: Bool
+    let appStoreUrl: String?
+    let hasAppStoreUrl: Bool
+    let backendNote: String?
 }
