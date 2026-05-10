@@ -57,6 +57,22 @@ struct ProjectsController: RouteCollection {
             logoAsset: "/static/projects/norviq-icon.png"
         ),
         ProjectItem(
+            slug: "luminavault",
+            title: "LuminaVault",
+            roleTag: "Independent",
+            description:
+                "Self-hosted, private, AI-powered second brain. Capture screenshots, notes, photos, locations, and HealthKit data into a Markdown vault you fully own. The Hermes-powered kb-compile engine turns raw inputs into a queryable knowledge base that learns your patterns over time.",
+            tags: ["SwiftUI", "Hummingbird 2", "Hermes Agent", "PostgreSQL", "pgvector", "Docker"],
+            category: "iOS App / Self-Hosted",
+            githubLink: "Private",
+            liveLink: "",
+            hasLiveLink: false,
+            featured: true,
+            icon: "🧠",
+            iconUrl: nil,
+            logoAsset: "/static/projects/luminavault-icon.jpg"
+        ),
+        ProjectItem(
             slug: "hermes",
             title: "Hermes",
             roleTag: "Independent",
@@ -283,7 +299,40 @@ struct ProjectsController: RouteCollection {
                 hasSocialLinks: true,
                 appStoreUrl: nil,           // TODO: paste App Store URL here when ready
                 hasAppStoreUrl: false,
+                playStoreUrl: nil,
+                hasPlayStoreUrl: false,
                 backendNote: "Powered by api.norviqa.io"
+            )
+
+        case "luminavault":
+            return ProjectDetailContext(
+                title: "\(project.title) | FC Software Studio",
+                activePage: "projects",
+                project: project,
+                tagline: "Your second brain, self-hosted. Private, AI-powered memory layer you actually own.",
+                longDescription: [
+                    "LuminaVault is a self-improving memory layer for researchers, analysts, and anyone who wants a living second brain that they truly own. Capture screenshots, photos, Apple Maps locations, HealthKit data, Safari links, and notes — all saved as clean Markdown in your private vault, never leaving your VPS or device.",
+                    "Meet Lumina, your personal knowledge guardian. One tap with `kb-compile` turns raw inputs into a smart, searchable wiki. Lumina learns your habits, answers questions about your past with perfect context, drafts memos, and surfaces only the patterns that matter.",
+                    "Built native-first on iOS with a Hummingbird 2 + Postgres + pgvector backend you self-host via Docker. Privacy-first AI: bring your own LLM key, your memory layer stays on your infrastructure.",
+                ],
+                features: [
+                    DetailFeature(title: "Effortless capture", body: "Screenshots, photos, Apple Maps locations, HealthKit data, Safari links, voice notes — all saved as clean Markdown."),
+                    DetailFeature(title: "kb-compile engine", body: "One tap turns raw notes into a structured, queryable knowledge base with pgvector semantic search."),
+                    DetailFeature(title: "Learns your patterns", body: "Lumina builds a model of how you think, work, and live, then surfaces context when it matters."),
+                    DetailFeature(title: "Answer your past", body: "Ask any question about your captured history and get grounded answers with citations."),
+                    DetailFeature(title: "Quiet, smart nudges", body: "Notifications only when something actually matters — sleep trends, opportunities, anomalies."),
+                    DetailFeature(title: "100% yours", body: "Self-hosted via Docker. Per-tenant vault filesystem, JWT auth, BYO LLM key. Data never leaves your infrastructure."),
+                ],
+                techStack: ["SwiftUI", "SwiftData", "Vision OCR", "AVFoundation", "Swift 6", "Hummingbird 2", "PostgreSQL", "pgvector", "Hermes Agent", "Docker"],
+                socialLinks: [],
+                hasFeatures: true,
+                hasTechStack: true,
+                hasSocialLinks: false,
+                appStoreUrl: nil,           // TODO: paste App Store URL here when ready
+                hasAppStoreUrl: false,
+                playStoreUrl: nil,          // TODO: paste Play Store URL here when ready
+                hasPlayStoreUrl: false,
+                backendNote: "Self-hosted on your own VPS — your second brain belongs to you."
             )
 
         default:
@@ -301,6 +350,8 @@ struct ProjectsController: RouteCollection {
                 hasSocialLinks: false,
                 appStoreUrl: nil,
                 hasAppStoreUrl: false,
+                playStoreUrl: nil,
+                hasPlayStoreUrl: false,
                 backendNote: nil
             )
         }
@@ -362,5 +413,7 @@ struct ProjectDetailContext: Content {
     let hasSocialLinks: Bool
     let appStoreUrl: String?
     let hasAppStoreUrl: Bool
+    let playStoreUrl: String?
+    let hasPlayStoreUrl: Bool
     let backendNote: String?
 }

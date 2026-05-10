@@ -1435,7 +1435,8 @@ p {
     align-items: center;
     margin-bottom: 3rem;
 }
-.app-store-badge {
+.app-store-badge,
+.play-store-badge {
     display: inline-block;
     height: 54px;
     line-height: 0;
@@ -1445,12 +1446,14 @@ p {
         transform 0.2s var(--ease-smooth),
         box-shadow 0.2s var(--ease-smooth);
 }
-.app-store-badge svg {
+.app-store-badge svg,
+.play-store-badge svg {
     height: 100%;
     width: auto;
     display: block;
 }
-.app-store-badge:hover {
+.app-store-badge:hover,
+.play-store-badge:hover {
     transform: translateY(-2px);
     box-shadow: 0 14px 28px -16px rgba(0, 0, 0, 0.35);
 }
