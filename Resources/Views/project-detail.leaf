@@ -15,6 +15,13 @@
             </a>
           </nav>
 
+          <!-- Banner -->
+          #if(hasBanner):
+            <figure class="project-detail-banner" data-reveal>
+              <img src="#(bannerAsset)" alt="#(project.title) banner" loading="lazy">
+            </figure>
+          #endif
+
           <!-- Hero -->
           <header class="project-detail-hero" data-reveal>
             <div class="project-detail-hero__logo">

@@ -301,7 +301,9 @@ struct ProjectsController: RouteCollection {
                 hasAppStoreUrl: false,
                 playStoreUrl: nil,
                 hasPlayStoreUrl: false,
-                backendNote: "Powered by api.norviqa.io"
+                backendNote: "Powered by api.norviqa.io",
+                bannerAsset: nil,
+                hasBanner: false
             )
 
         case "luminavault":
@@ -332,7 +334,9 @@ struct ProjectsController: RouteCollection {
                 hasAppStoreUrl: false,
                 playStoreUrl: nil,          // TODO: paste Play Store URL here when ready
                 hasPlayStoreUrl: false,
-                backendNote: "Self-hosted on your own VPS — your second brain belongs to you."
+                backendNote: "Self-hosted on your own VPS — your second brain belongs to you.",
+                bannerAsset: "/static/projects/luminavault-banner.jpg",
+                hasBanner: true
             )
 
         default:
@@ -352,7 +356,9 @@ struct ProjectsController: RouteCollection {
                 hasAppStoreUrl: false,
                 playStoreUrl: nil,
                 hasPlayStoreUrl: false,
-                backendNote: nil
+                backendNote: nil,
+                bannerAsset: nil,
+                hasBanner: false
             )
         }
     }
@@ -416,4 +422,6 @@ struct ProjectDetailContext: Content {
     let playStoreUrl: String?
     let hasPlayStoreUrl: Bool
     let backendNote: String?
+    let bannerAsset: String?
+    let hasBanner: Bool
 }
