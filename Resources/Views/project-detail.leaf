@@ -15,30 +15,47 @@
             </a>
           </nav>
 
-          <!-- Banner -->
           #if(hasBanner):
-            <figure class="project-detail-banner" data-reveal>
-              <img src="#(bannerAsset)" alt="#(project.title) banner" loading="lazy">
-            </figure>
+            <!-- Hero with banner backdrop -->
+            <section class="project-detail-hero-banner" data-reveal>
+              <div class="project-detail-hero-banner__media">
+                <img src="#(bannerAsset)" alt="#(project.title) banner" loading="eager">
+                <div class="project-detail-hero-banner__overlay"></div>
+              </div>
+              <div class="project-detail-hero-banner__content">
+                <div class="project-detail-hero-banner__logo">
+                  #if(project.logoAsset):
+                    <img src="#(project.logoAsset)" alt="#(project.title) logo" width="64" height="64">
+                  #elseif(project.iconUrl):
+                    <img src="#(project.iconUrl)" alt="#(project.title) logo" width="44" height="44">
+                  #else:
+                    <span>#(project.icon)</span>
+                  #endif
+                </div>
+                <span class="role-chip role-chip--on-banner">#(project.roleTag)</span>
+                <h1 class="project-detail-hero-banner__title">#(project.title)</h1>
+                <p class="project-detail-hero-banner__tagline">#(tagline)</p>
+              </div>
+            </section>
+          #else:
+            <!-- Hero (no banner) -->
+            <header class="project-detail-hero" data-reveal>
+              <div class="project-detail-hero__logo">
+                #if(project.logoAsset):
+                  <img src="#(project.logoAsset)" alt="#(project.title) logo" width="96" height="96">
+                #elseif(project.iconUrl):
+                  <img src="#(project.iconUrl)" alt="#(project.title) logo" class="project-detail-hero__logo-img--devicon" width="64" height="64">
+                #else:
+                  <span class="project-detail-hero__logo-emoji">#(project.icon)</span>
+                #endif
+              </div>
+              <div class="project-detail-hero__content">
+                <span class="role-chip">#(project.roleTag)</span>
+                <h1 class="project-detail-hero__title">#(project.title)</h1>
+                <p class="project-detail-hero__tagline">#(tagline)</p>
+              </div>
+            </header>
           #endif
-
-          <!-- Hero -->
-          <header class="project-detail-hero" data-reveal>
-            <div class="project-detail-hero__logo">
-              #if(project.logoAsset):
-                <img src="#(project.logoAsset)" alt="#(project.title) logo" width="96" height="96">
-              #elseif(project.iconUrl):
-                <img src="#(project.iconUrl)" alt="#(project.title) logo" class="project-detail-hero__logo-img--devicon" width="64" height="64">
-              #else:
-                <span class="project-detail-hero__logo-emoji">#(project.icon)</span>
-              #endif
-            </div>
-            <div class="project-detail-hero__content">
-              <span class="role-chip">#(project.roleTag)</span>
-              <h1 class="project-detail-hero__title">#(project.title)</h1>
-              <p class="project-detail-hero__tagline">#(tagline)</p>
-            </div>
-          </header>
 
           <!-- Long description -->
           <section class="project-detail-prose" data-reveal>
