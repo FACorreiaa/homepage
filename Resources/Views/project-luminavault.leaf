@@ -3,7 +3,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 
     <div class="lv">
-      <!-- ambient backdrop -->
       <div class="lv-aurora" aria-hidden="true"></div>
       <div class="lv-grid" aria-hidden="true"></div>
 
@@ -17,48 +16,98 @@
             </a>
           </nav>
 
-          <!-- HERO -->
+          <!-- HERO (asymmetric: copy left, device right) -->
           <section class="lv-hero" data-reveal>
-            <p class="lv-eyebrow">#(eyebrow)</p>
-            <h1 class="lv-wordmark"><span class="lv-w1">Lumina</span><span class="lv-w2">Vault</span></h1>
-            <p class="lv-tagline">#(tagline)</p>
-            <p class="lv-lede">#(lede)</p>
+            <div class="lv-hero__copy">
+              <p class="lv-eyebrow">#(eyebrow)</p>
+              <h1 class="lv-wordmark"><span class="lv-w1">Lumina</span><span class="lv-w2">Vault</span></h1>
+              <p class="lv-tagline">#(tagline)</p>
+              <p class="lv-lede">#(lede)</p>
 
-            <div class="lv-cta">
-              #if(hasAppStoreUrl):
-                <a href="#(appStoreUrl)" class="lv-store" target="_blank" rel="noopener noreferrer" aria-label="Download on the App Store">
-                  <svg class="lv-apple" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16.36 1.43c.05 1.02-.36 2.02-1 2.77-.66.77-1.74 1.36-2.79 1.28-.07-1 .42-2.04 1.04-2.74.69-.79 1.86-1.36 2.75-1.31zM19.6 17.3c-.5 1.16-.74 1.68-1.39 2.71-.9 1.43-2.18 3.22-3.76 3.23-1.4.02-1.76-.91-3.66-.9-1.9.01-2.3.92-3.7.9-1.58-.02-2.79-1.63-3.7-3.06C1.2 16.2.94 11.43 2.5 8.9c1.1-1.78 2.84-2.83 4.48-2.83 1.66 0 2.71.92 4.08.92 1.33 0 2.14-.92 4.07-.92 1.46 0 3.01.8 4.11 2.18-3.61 1.98-3.02 7.14.36 9.05z"></path></svg>
-                  <span class="lv-store__txt"><small>Download on the</small><strong>App Store</strong></span>
-                </a>
-              #else:
-                <span class="lv-store is-soon" aria-disabled="true">
-                  <svg class="lv-apple" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16.36 1.43c.05 1.02-.36 2.02-1 2.77-.66.77-1.74 1.36-2.79 1.28-.07-1 .42-2.04 1.04-2.74.69-.79 1.86-1.36 2.75-1.31zM19.6 17.3c-.5 1.16-.74 1.68-1.39 2.71-.9 1.43-2.18 3.22-3.76 3.23-1.4.02-1.76-.91-3.66-.9-1.9.01-2.3.92-3.7.9-1.58-.02-2.79-1.63-3.7-3.06C1.2 16.2.94 11.43 2.5 8.9c1.1-1.78 2.84-2.83 4.48-2.83 1.66 0 2.71.92 4.08.92 1.33 0 2.14-.92 4.07-.92 1.46 0 3.01.8 4.11 2.18-3.61 1.98-3.02 7.14.36 9.05z"></path></svg>
-                  <span class="lv-store__txt"><small>Coming soon to the</small><strong>App Store</strong></span>
-                </span>
-              #endif
-              <a href="/book-call" class="lv-ghost">Book a call</a>
+              <div class="lv-cta">
+                #if(hasAppStoreUrl):
+                  <a href="#(appStoreUrl)" class="lv-store" target="_blank" rel="noopener noreferrer" aria-label="Download on the App Store">
+                    <svg class="lv-apple" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16.36 1.43c.05 1.02-.36 2.02-1 2.77-.66.77-1.74 1.36-2.79 1.28-.07-1 .42-2.04 1.04-2.74.69-.79 1.86-1.36 2.75-1.31zM19.6 17.3c-.5 1.16-.74 1.68-1.39 2.71-.9 1.43-2.18 3.22-3.76 3.23-1.4.02-1.76-.91-3.66-.9-1.9.01-2.3.92-3.7.9-1.58-.02-2.79-1.63-3.7-3.06C1.2 16.2.94 11.43 2.5 8.9c1.1-1.78 2.84-2.83 4.48-2.83 1.66 0 2.71.92 4.08.92 1.33 0 2.14-.92 4.07-.92 1.46 0 3.01.8 4.11 2.18-3.61 1.98-3.02 7.14.36 9.05z"></path></svg>
+                    <span class="lv-store__txt"><small>Download on the</small><strong>App Store</strong></span>
+                  </a>
+                #else:
+                  <span class="lv-store is-soon" aria-disabled="true">
+                    <svg class="lv-apple" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M16.36 1.43c.05 1.02-.36 2.02-1 2.77-.66.77-1.74 1.36-2.79 1.28-.07-1 .42-2.04 1.04-2.74.69-.79 1.86-1.36 2.75-1.31zM19.6 17.3c-.5 1.16-.74 1.68-1.39 2.71-.9 1.43-2.18 3.22-3.76 3.23-1.4.02-1.76-.91-3.66-.9-1.9.01-2.3.92-3.7.9-1.58-.02-2.79-1.63-3.7-3.06C1.2 16.2.94 11.43 2.5 8.9c1.1-1.78 2.84-2.83 4.48-2.83 1.66 0 2.71.92 4.08.92 1.33 0 2.14-.92 4.07-.92 1.46 0 3.01.8 4.11 2.18-3.61 1.98-3.02 7.14.36 9.05z"></path></svg>
+                    <span class="lv-store__txt"><small>Coming soon to the</small><strong>App Store</strong></span>
+                  </span>
+                #endif
+                <a href="/book-call" class="lv-ghost">Book a call</a>
+              </div>
+
+              <ul class="lv-meta" role="list">
+                <li><strong>iOS 17+</strong><span>Native SwiftUI</span></li>
+                <li><strong>Self-hosted</strong><span>Docker · your VPS</span></li>
+                <li><strong>BYO LLM</strong><span>Your keys, your data</span></li>
+              </ul>
             </div>
 
-            <!-- device mockup -->
-            <div class="lv-device" data-reveal>
-              <div class="lv-device__glow" aria-hidden="true"></div>
-              <div class="lv-phone">
-                <span class="lv-phone__notch" aria-hidden="true"></span>
-                <div class="lv-phone__screen">
-                  <img src="#(sceneAsset)" alt="LuminaVault app — Lumina surfacing your memories" loading="eager">
+            <div class="lv-hero__art">
+              <div class="lv-device">
+                <div class="lv-device__glow" aria-hidden="true"></div>
+                <div class="lv-phone">
+                  <span class="lv-phone__notch" aria-hidden="true"></span>
+                  <div class="lv-phone__screen">
+                    <div class="lv-app" aria-label="LuminaVault app preview">
+                      <div class="lv-app__status">
+                        <span>9:41</span>
+                        <span class="lv-app__status-ic"><i></i><i></i><i></i></span>
+                      </div>
+                      <header class="lv-app__head">
+                        <div>
+                          <p class="lv-app__hi">Good evening</p>
+                          <h4>Your vault</h4>
+                        </div>
+                        <span class="lv-app__avatar">L</span>
+                      </header>
+                      <div class="lv-app__search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                        <span>Ask your vault…</span>
+                      </div>
+                      <div class="lv-app__compile">
+                        <span class="lv-app__dot"></span>
+                        kb-compile · 1,284 notes indexed
+                      </div>
+                      <p class="lv-app__label">Recent captures</p>
+                      <ul class="lv-app__cards">
+                        <li class="lv-mcard">
+                          <span class="lv-mcard__ic lv-mcard__ic--cyan"></span>
+                          <div><strong>WWDC keynote notes</strong><small>Screenshot · 2m ago</small></div>
+                        </li>
+                        <li class="lv-mcard">
+                          <span class="lv-mcard__ic lv-mcard__ic--gold"></span>
+                          <div><strong>Sleep trend ↑ 12%</strong><small>HealthKit · 1h ago</small></div>
+                        </li>
+                        <li class="lv-mcard">
+                          <span class="lv-mcard__ic lv-mcard__ic--violet"></span>
+                          <div><strong>Lisbon — coffee spot</strong><small>Location · Today</small></div>
+                        </li>
+                      </ul>
+                      <nav class="lv-app__tabs" aria-hidden="true">
+                        <span class="is-active">Home</span>
+                        <span>Think</span>
+                        <span>Search</span>
+                        <span>Spaces</span>
+                      </nav>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </section>
 
-          <!-- PILLARS -->
+          <!-- VALUE PROPS -->
           <section class="lv-pillars" data-reveal>
             <article class="lv-pillar">
               <span class="lv-pillar__ic">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg>
               </span>
-              <h3>Effortless capture</h3>
-              <p>Screenshots, photos, locations, HealthKit, links, voice notes — all in seconds, all clean Markdown.</p>
+              <h3>Capture anything</h3>
+              <p>Screenshots, photos, locations, HealthKit, links, voice notes — captured in seconds, stored as clean Markdown.</p>
             </article>
             <article class="lv-pillar">
               <span class="lv-pillar__ic">
@@ -71,37 +120,30 @@
               <span class="lv-pillar__ic">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
               </span>
-              <h3>Privacy first</h3>
+              <h3>Private by design</h3>
               <p>Self-hosted, per-tenant vaults, JWT auth, BYO LLM key. Your data never leaves your infrastructure.</p>
             </article>
           </section>
 
-          <!-- HOW IT WORKS -->
-          <section class="lv-steps" data-reveal>
-            <h2 class="lv-h2">How it works</h2>
-            <ol class="lv-steps__list">
-              #for(step in steps):
-                <li class="lv-step">
-                  <span class="lv-step__num">#(step.num)</span>
-                  <div>
-                    <h3>#(step.title)</h3>
-                    <p>#(step.body)</p>
-                  </div>
-                </li>
-              #endfor
-            </ol>
-          </section>
-
           <!-- STORY -->
-          <section class="lv-prose" data-reveal>
-            #for(paragraph in longDescription):
-              <p>#(paragraph)</p>
-            #endfor
+          <section class="lv-story" data-reveal>
+            <div class="lv-story__head">
+              <span class="lv-kicker">The idea</span>
+              <h2 class="lv-h2">A second brain that actually learns you.</h2>
+            </div>
+            <div class="lv-story__body">
+              #for(paragraph in longDescription):
+                <p>#(paragraph)</p>
+              #endfor
+            </div>
           </section>
 
           <!-- FEATURES -->
           <section class="lv-features" data-reveal>
-            <h2 class="lv-h2">Everything inside</h2>
+            <div class="lv-section-head">
+              <span class="lv-kicker">Capabilities</span>
+              <h2 class="lv-h2">Everything inside</h2>
+            </div>
             <div class="lv-features__grid">
               #for(feature in features):
                 <article class="lv-feature">
@@ -114,7 +156,10 @@
 
           <!-- TECH -->
           <section class="lv-tech" data-reveal>
-            <h2 class="lv-h2">Built with</h2>
+            <div class="lv-section-head">
+              <span class="lv-kicker">Under the hood</span>
+              <h2 class="lv-h2">Built with</h2>
+            </div>
             <ul class="lv-tech__list" role="list">
               #for(tech in techStack):
                 <li><span class="lv-pill">#(tech)</span></li>
