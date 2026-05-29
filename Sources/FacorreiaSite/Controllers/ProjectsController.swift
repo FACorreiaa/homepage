@@ -26,7 +26,7 @@ struct ProjectsController: RouteCollection {
             throw Abort(.notFound)
         }
 
-        // LuminaVault gets a dedicated, fully branded landing template.
+        // LuminaVault has a dedicated, fully branded landing template.
         if project.slug == "luminavault" {
             return try await req.view.render("project-luminavault", Self.luminaContext(for: project))
         }
@@ -75,7 +75,7 @@ struct ProjectsController: RouteCollection {
             featured: true,
             icon: "🧠",
             iconUrl: nil,
-            logoAsset: "/static/projects/lumina/icon-brain.png"
+            logoAsset: "/static/projects/luminavault-icon.jpg"
         ),
         ProjectItem(
             slug: "hermes",
@@ -368,36 +368,36 @@ struct ProjectsController: RouteCollection {
         }
     }
 
-    // MARK: - LuminaVault branded context
+    // MARK: - LuminaVault branded landing context
 
     static func luminaContext(for project: ProjectItem) -> LuminaContext {
         LuminaContext(
             title: "\(project.title) | FC Software Studio",
             activePage: "projects",
             project: project,
+            eyebrow: "iOS · Self-hosted · AI second brain",
             tagline: "Your memories, illuminated.",
-            lede: "A self-hosted, private, AI-powered second brain. Capture everything — own everything.",
+            lede: "LuminaVault is a private, self-hosted second brain. Capture screenshots, notes, photos, locations, and HealthKit data into a Markdown vault you fully own — then let kb-compile turn it into a knowledge base that learns you.",
             longDescription: [
-                "LuminaVault is a self-improving memory layer for researchers, analysts, and anyone who wants a living second brain that they truly own. Capture screenshots, photos, Apple Maps locations, HealthKit data, Safari links, and notes — all saved as clean Markdown in your private vault, never leaving your VPS or device.",
-                "Meet Lumina, your personal knowledge guardian. One tap with `kb-compile` turns raw inputs into a smart, searchable wiki. Lumina learns your habits, answers questions about your past with perfect context, drafts memos, and surfaces only the patterns that matter.",
-                "Built native-first on iOS with a Hummingbird 2 + Postgres + pgvector backend you self-host via Docker. Privacy-first AI: bring your own LLM key, your memory layer stays on your infrastructure.",
+                "LuminaVault is a self-improving memory layer for researchers, analysts, and anyone who wants a living second brain they truly own. Capture screenshots, photos, Apple Maps locations, HealthKit data, Safari links, and notes — all saved as clean Markdown in your private vault, never leaving your VPS or device.",
+                "One tap with kb-compile turns raw inputs into a smart, searchable wiki. It learns your habits, answers questions about your past with grounded context, drafts memos, and surfaces only the patterns that matter.",
+                "Built native-first on iOS with a Hummingbird 2 + Postgres + pgvector backend you self-host via Docker. Privacy-first by design: bring your own LLM key, and your memory layer stays on your infrastructure.",
             ],
-            pillars: [
-                LuminaPillar(icon: "/static/projects/lumina/icon-brain.png", title: "Effortless capture", body: "Memory spaces in seconds — screenshots, photos, locations, HealthKit, links, voice notes, all clean Markdown."),
-                LuminaPillar(icon: "/static/projects/lumina/icon-key.png", title: "Meet Lumina", body: "Your knowledge guardian unlocks insight — kb-compile turns raw notes into a queryable, learning wiki."),
-                LuminaPillar(icon: "/static/projects/lumina/icon-lock.png", title: "Privacy first", body: "Self-hosted, per-tenant vaults, JWT auth, BYO LLM key. Your data never leaves your infrastructure."),
+            steps: [
+                LuminaStep(num: "01", title: "Capture", body: "Send screenshots, photos, locations, health data, links, and voice notes straight into your vault — instantly Markdown."),
+                LuminaStep(num: "02", title: "Compile", body: "kb-compile structures everything into a queryable wiki with pgvector semantic search, no manual filing."),
+                LuminaStep(num: "03", title: "Recall", body: "Ask anything about your past and get grounded, cited answers — plus quiet nudges only when they matter."),
             ],
             features: [
                 DetailFeature(title: "Effortless capture", body: "Screenshots, photos, Apple Maps locations, HealthKit data, Safari links, voice notes — all saved as clean Markdown."),
                 DetailFeature(title: "kb-compile engine", body: "One tap turns raw notes into a structured, queryable knowledge base with pgvector semantic search."),
-                DetailFeature(title: "Learns your patterns", body: "Lumina builds a model of how you think, work, and live, then surfaces context when it matters."),
+                DetailFeature(title: "Learns your patterns", body: "It builds a model of how you think, work, and live, then surfaces context when it matters."),
                 DetailFeature(title: "Answer your past", body: "Ask any question about your captured history and get grounded answers with citations."),
                 DetailFeature(title: "Quiet, smart nudges", body: "Notifications only when something actually matters — sleep trends, opportunities, anomalies."),
                 DetailFeature(title: "100% yours", body: "Self-hosted via Docker. Per-tenant vault filesystem, JWT auth, BYO LLM key. Data never leaves your infrastructure."),
             ],
             techStack: ["SwiftUI", "SwiftData", "Vision OCR", "AVFoundation", "Swift 6", "Hummingbird 2", "PostgreSQL", "pgvector", "Hermes Agent", "Docker"],
             backendNote: "Self-hosted on your own VPS — your second brain belongs to you.",
-            mascotAsset: "/static/projects/lumina/mascot.png",
             sceneAsset: "/static/projects/lumina/scene.png",
             appStoreUrl: nil,           // TODO: paste App Store URL here when ready
             hasAppStoreUrl: false
@@ -467,8 +467,8 @@ struct ProjectDetailContext: Content {
     let hasBanner: Bool
 }
 
-struct LuminaPillar: Content {
-    let icon: String
+struct LuminaStep: Content {
+    let num: String
     let title: String
     let body: String
 }
@@ -477,14 +477,14 @@ struct LuminaContext: Content {
     let title: String
     let activePage: String
     let project: ProjectItem
+    let eyebrow: String
     let tagline: String
     let lede: String
     let longDescription: [String]
-    let pillars: [LuminaPillar]
+    let steps: [LuminaStep]
     let features: [DetailFeature]
     let techStack: [String]
     let backendNote: String?
-    let mascotAsset: String
     let sceneAsset: String
     let appStoreUrl: String?
     let hasAppStoreUrl: Bool
