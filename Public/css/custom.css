@@ -2285,7 +2285,7 @@ p {
     padding: 0;
     margin: 2rem 0 0;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
 }
 
@@ -2344,6 +2344,50 @@ p {
     margin: 0 0 1.1rem;
 }
 .lv-story__body p:last-child { margin-bottom: 0; }
+
+/* ---- COMPARE ---- */
+.lv-compare {
+    margin-top: 4.5rem;
+}
+
+.lv-compare__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.lv-compare__item {
+    padding: 1.55rem 1.45rem;
+    border-radius: 18px;
+    border: 1px solid var(--lv-line);
+    background: var(--lv-card);
+}
+
+.lv-compare__item.is-highlight {
+    border-color: rgba(0, 245, 255, 0.28);
+    background:
+        radial-gradient(120% 130% at 100% 0%, rgba(0, 245, 255, 0.09), transparent 55%),
+        rgba(255, 255, 255, 0.025);
+}
+
+.lv-compare__item h3 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f3f8ff;
+    margin: 0 0 0.5rem;
+}
+
+.lv-compare__item.is-highlight h3 {
+    color: var(--lv-cyan);
+}
+
+.lv-compare__item p {
+    font-size: 0.94rem;
+    line-height: 1.7;
+    color: var(--lv-muted);
+    margin: 0;
+}
 
 /* ---- FEATURES ---- */
 .lv-features { margin-top: 4.5rem; }
@@ -2462,6 +2506,16 @@ p {
     margin: 0 0 0.7rem;
 }
 
+.lv-cta-card__mascot {
+    position: relative;
+    display: block;
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    margin: 0 auto 1.15rem;
+    filter: drop-shadow(0 18px 32px rgba(0, 245, 255, 0.22));
+}
+
 .lv-cta-card p {
     position: relative;
     color: var(--lv-muted);
@@ -2490,11 +2544,15 @@ p {
         gap: 1.25rem;
     }
     .lv-story__head { position: static; }
+    .lv-steps__list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 720px) {
     .lv-pillars,
-    .lv-steps__list {
+    .lv-steps__list,
+    .lv-compare__grid {
         grid-template-columns: 1fr;
     }
     .lv-meta { gap: 1.25rem; }
@@ -2503,4 +2561,3 @@ p {
 @media (prefers-reduced-motion: reduce) {
     .lv-phone { animation: none; }
 }
-

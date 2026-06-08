@@ -66,9 +66,9 @@ struct ProjectsController: RouteCollection {
             title: "LuminaVault",
             roleTag: "Independent",
             description:
-                "Self-hosted, private, AI-powered second brain. Capture screenshots, notes, photos, locations, and HealthKit data into a Markdown vault you fully own. The Hermes-powered kb-compile engine turns raw inputs into a queryable knowledge base that learns your patterns over time.",
-            tags: ["SwiftUI", "Hummingbird 2", "Hermes Agent", "PostgreSQL", "pgvector", "Docker"],
-            category: "iOS App / Self-Hosted",
+                "An early-stage iOS second brain that combines organized Spaces with Hermes, an AI agent designed to reason over the links and notes you save.",
+            tags: ["SwiftUI", "Hermes Agent", "Spaces", "AI Memory", "TestFlight"],
+            category: "iOS App / AI Memory",
             githubLink: "Private",
             liveLink: "",
             hasLiveLink: false,
@@ -375,30 +375,33 @@ struct ProjectsController: RouteCollection {
             title: "\(project.title) | FC Software Studio",
             activePage: "projects",
             project: project,
-            eyebrow: "iOS · Self-hosted · AI second brain",
-            tagline: "Your memories, illuminated.",
-            lede: "LuminaVault is a private, self-hosted second brain. Capture screenshots, notes, photos, locations, and HealthKit data into a Markdown vault you fully own — then let kb-compile turn it into a knowledge base that learns you.",
+            eyebrow: "iOS · AI memory · Private by design",
+            tagline: "Your second brain, built to think with you.",
+            lede: "LuminaVault is an early-stage iOS app for saving links, notes, and personal knowledge into organized Spaces, then using Hermes to reason across what you have captured.",
             longDescription: [
-                "LuminaVault is a self-improving memory layer for researchers, analysts, and anyone who wants a living second brain they truly own. Capture screenshots, photos, Apple Maps locations, HealthKit data, Safari links, and notes — all saved as clean Markdown in your private vault, never leaving your VPS or device.",
-                "One tap with kb-compile turns raw inputs into a smart, searchable wiki. It learns your habits, answers questions about your past with grounded context, drafts memos, and surfaces only the patterns that matter.",
-                "Built native-first on iOS with a Hummingbird 2 + Postgres + pgvector backend you self-host via Docker. Privacy-first by design: bring your own LLM key, and your memory layer stays on your infrastructure.",
+                "Most knowledge tools are good at storage. You can clip links, write notes, organize folders, and search later. But when your information spreads across apps, chats, bookmarks, and half-finished notes, your AI assistant has no real memory of what matters to you.",
+                "LuminaVault is being built for a different workflow: capture the things worth remembering, keep them structured, and let Hermes reason over your own knowledge base instead of starting from a blank chat window every time.",
+                "The product is currently in TestFlight and pre-launch development. The focus is intentionally narrow: reliable capture, clear Spaces, and an AI layer that can work with saved context without overstating what is finished today.",
             ],
             steps: [
-                LuminaStep(num: "01", title: "Capture", body: "Send screenshots, photos, locations, health data, links, and voice notes straight into your vault — instantly Markdown."),
-                LuminaStep(num: "02", title: "Compile", body: "kb-compile structures everything into a queryable wiki with pgvector semantic search, no manual filing."),
-                LuminaStep(num: "03", title: "Recall", body: "Ask anything about your past and get grounded, cited answers — plus quiet nudges only when they matter."),
+                LuminaStep(num: "01", title: "Save", body: "Add links and notes from your phone as you discover them."),
+                LuminaStep(num: "02", title: "Organize", body: "Place information into Spaces so your vault reflects how you actually think and work."),
+                LuminaStep(num: "03", title: "Ask Hermes", body: "Use Hermes to summarize, connect, retrieve, and reason across what you have saved."),
+                LuminaStep(num: "04", title: "Build memory", body: "Over time, your saved context becomes a more useful personal knowledge base."),
             ],
             features: [
-                DetailFeature(title: "Effortless capture", body: "Screenshots, photos, Apple Maps locations, HealthKit data, Safari links, voice notes — all saved as clean Markdown."),
-                DetailFeature(title: "kb-compile engine", body: "One tap turns raw notes into a structured, queryable knowledge base with pgvector semantic search."),
-                DetailFeature(title: "Learns your patterns", body: "It builds a model of how you think, work, and live, then surfaces context when it matters."),
-                DetailFeature(title: "Answer your past", body: "Ask any question about your captured history and get grounded answers with citations."),
-                DetailFeature(title: "Quiet, smart nudges", body: "Notifications only when something actually matters — sleep trends, opportunities, anomalies."),
-                DetailFeature(title: "100% yours", body: "Self-hosted via Docker. Per-tenant vault filesystem, JWT auth, BYO LLM key. Data never leaves your infrastructure."),
+                DetailFeature(title: "Intelligent memory", body: "Save links and notes into a vault Hermes can understand. The goal is recall, synthesis, and reasoning over your own context."),
+                DetailFeature(title: "Spaces for structure", body: "Organize knowledge by project, topic, or area of life without losing the ability to connect ideas later."),
+                DetailFeature(title: "Hermes as your agent", body: "Hermes is the intelligence layer inside LuminaVault, designed to work with saved context rather than isolated prompts."),
+                DetailFeature(title: "Privacy and control", body: "LuminaVault is for people who care where their knowledge lives, including the option to use your own Hermes setup."),
+                DetailFeature(title: "Mobile-first capture", body: "A second brain only works if capture is close at hand. LuminaVault starts on iPhone because useful context often appears away from your desk."),
             ],
-            techStack: ["SwiftUI", "SwiftData", "Vision OCR", "AVFoundation", "Swift 6", "Hummingbird 2", "PostgreSQL", "pgvector", "Hermes Agent", "Docker"],
-            backendNote: "Self-hosted on your own VPS — your second brain belongs to you.",
+            techStack: ["TestFlight", "iOS-first", "Spaces", "Saved links", "Notes", "Hermes Agent", "Private vault", "Bring your own Hermes"],
+            backendNote: "Current focus: individual use, native iOS capture, structured memory, and grounded Hermes workflows. No web app or collaboration features are being promised at this stage.",
             sceneAsset: "/static/projects/lumina/scene.png",
+            waitlistUrl: "mailto:fernandocorreia316@gmail.com?subject=LuminaVault%20TestFlight%20Waitlist&body=Hi%20Fernando%2C%0A%0AI%27d%20like%20to%20join%20the%20LuminaVault%20TestFlight%20waitlist.%0A",
+            secondaryUrl: "/blog/hermes-personal-assistant",
+            mascotAsset: "/static/projects/lumina/mascot.png",
             appStoreUrl: nil,           // TODO: paste App Store URL here when ready
             hasAppStoreUrl: false
         )
@@ -486,6 +489,9 @@ struct LuminaContext: Content {
     let techStack: [String]
     let backendNote: String?
     let sceneAsset: String
+    let waitlistUrl: String
+    let secondaryUrl: String
+    let mascotAsset: String
     let appStoreUrl: String?
     let hasAppStoreUrl: Bool
 }

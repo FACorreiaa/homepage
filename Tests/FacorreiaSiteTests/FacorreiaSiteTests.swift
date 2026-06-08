@@ -9,8 +9,8 @@ struct FacorreiaSiteTests {
         try await withApp(configure: configure) { app in
             try await app.testing().test(.GET, "projects", afterResponse: { res async in
                 #expect(res.status == .ok)
-                #expect(res.body.string.contains("StockPlan"))
-                #expect(res.body.string.contains("portfolio tracker backend"))
+                #expect(res.body.string.contains("LuminaVault"))
+                #expect(res.body.string.contains("AI Memory"))
             })
         }
     }
