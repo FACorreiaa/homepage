@@ -17,10 +17,40 @@ public func configure(_ app: Application) async throws {
 
     // Enact HTTP Cookie sessions application-wide
     app.middleware.use(app.sessions.middleware)
-    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+
+    // Static file middleware with caching
+    let publicDirectory = app.directory.publicDirectory
+    app.middleware.use(FileMiddleware(publicDirectory: publicDirectory))
+    
+    // Custom middleware to add Cache-Control headers to static assets
+    app.middleware.use(CacheControlMiddleware())
+
     app.views.use(.leaf)
     app.leaf.tags["unsafeRaw"] = UnsafeRawTag()
 
     // register routes
     try routes(app)
+}
+
+struct CacheControlMiddleware: AsyncMiddleware {
+    func respond(to request: Request, chainingTo next: any AsyncResponder) async throws -> Response {
+        let response = try await next.respond(to: request)
+        
+        // Only add headers to successful responses for static assets
+        let path = request.url.path
+        if response.status == .ok && (
+            path.hasSuffix(".css") || 
+            path.hasSuffix(".js") || 
+            path.hasSuffix(".png") || 
+            path.hasSuffix(".jpg") || 
+            path.hasSuffix(".jpeg") || 
+            path.hasSuffix(".svg") || 
+            path.hasSuffix(".woff2") ||
+            path.hasSuffix(".json")
+        ) {
+            response.headers.replaceOrAdd(name: .cacheControl, value: "public, max-age=31536000, immutable")
+        }
+        
+        return response
+    }
 }
